@@ -1,0 +1,82 @@
+/* ===================================
+   LIGHT THEME (Default)
+   =================================== */
+
+body {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f9fafb;
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+    --card-bg: #ffffff;
+    --nav-bg: rgba(255, 255, 255, 0.8);
+    --border-color: #e5e7eb;
+    --input-bg: #f9fafb;
+    --prompt-bg: #f3f4f6;
+    --tag-bg: rgba(99, 102, 241, 0.1);
+}
+
+/* ===================================
+   DARK THEME
+   =================================== */
+
+body.dark-mode {
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --card-bg: #1e293b;
+    --nav-bg: rgba(15, 23, 42, 0.8);
+    --border-color: #334155;
+    --input-bg: #0f172a;
+    --prompt-bg: #0f172a;
+    --tag-bg: rgba(99, 102, 241, 0.2);
+}
+
+/* Background color transition */
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+/* Theme toggle icon visibility */
+.sun-icon {
+    display: block;
+}
+
+.moon-icon {
+    display: none;
+}
+
+body.dark-mode .sun-icon {
+    display: none;
+}
+
+body.dark-mode .moon-icon {
+    display: block;
+}
+
+/* Theme-specific adjustments */
+body.dark-mode .placeholder-img {
+    opacity: 0.9;
+}
+
+body.dark-mode .floating-orb {
+    opacity: 0.4;
+}
+
+body.dark-mode .card-overlay {
+    background: rgba(0, 0, 0, 0.9);
+}
+
+/* Smooth transitions for theme switch */
+body,
+.navbar,
+.section,
+.project-card,
+.prompt-card,
+.info-card,
+.contact-form,
+input,
+textarea {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
