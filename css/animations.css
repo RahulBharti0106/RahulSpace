@@ -1,0 +1,258 @@
+/* ===================================
+   KEYFRAME ANIMATIONS
+   =================================== */
+
+/* Float animation for elements */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+/* Spin animation for loader */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Scroll indicator animation */
+@keyframes scroll {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(0);
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+    }
+}
+
+/* Pulse animation */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 0.3;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(1.05);
+    }
+}
+
+/* Glitch effect for title */
+@keyframes glitch {
+    0% {
+        text-shadow: 2px 2px 0 var(--primary), -2px -2px 0 var(--accent);
+    }
+    25% {
+        text-shadow: -2px 2px 0 var(--primary), 2px -2px 0 var(--accent);
+    }
+    50% {
+        text-shadow: 2px -2px 0 var(--primary), -2px 2px 0 var(--accent);
+    }
+    75% {
+        text-shadow: -2px -2px 0 var(--primary), 2px 2px 0 var(--accent);
+    }
+    100% {
+        text-shadow: 2px 2px 0 var(--primary), -2px -2px 0 var(--accent);
+    }
+}
+
+.glitch:hover {
+    animation: glitch 0.5s infinite;
+}
+
+/* Glow on hover button effect */
+.glow-on-hover {
+    position: relative;
+    overflow: hidden;
+}
+
+.glow-on-hover::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.glow-on-hover:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+/* Fade up animation for cards */
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+[data-aos="fade-up"] {
+    animation: fadeUp 0.8s ease forwards;
+}
+
+[data-aos="fade-up"][data-aos-delay="100"] {
+    animation-delay: 0.1s;
+}
+
+[data-aos="fade-up"][data-aos-delay="200"] {
+    animation-delay: 0.2s;
+}
+
+/* Zoom in animation */
+@keyframes zoomIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+[data-aos="zoom-in"] {
+    animation: zoomIn 0.6s ease forwards;
+}
+
+[data-aos="zoom-in"][data-aos-delay="100"] {
+    animation-delay: 0.1s;
+}
+
+[data-aos="zoom-in"][data-aos-delay="200"] {
+    animation-delay: 0.2s;
+}
+
+/* Fade right animation */
+@keyframes fadeRight {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+[data-aos="fade-right"] {
+    animation: fadeRight 0.8s ease forwards;
+}
+
+/* Fade left animation */
+@keyframes fadeLeft {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+[data-aos="fade-left"] {
+    animation: fadeLeft 0.8s ease forwards;
+}
+
+/* Shimmer effect */
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+.shimmer {
+    background: linear-gradient(
+        to right,
+        var(--card-bg) 0%,
+        var(--border-color) 20%,
+        var(--card-bg) 40%,
+        var(--card-bg) 100%
+    );
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite;
+}
+
+/* Bounce animation */
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.bounce {
+    animation: bounce 2s ease-in-out infinite;
+}
+
+/* Rotate animation */
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.rotate {
+    animation: rotate 20s linear infinite;
+}
+
+/* Slide in from left */
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Slide in from right */
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Scale animation */
+@keyframes scaleUp {
+    from {
+        transform: scale(0);
+    }
+    to {
+        transform: scale(1);
+    }
+}
