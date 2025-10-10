@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Rahul's Portfolio - Creator & Developer">
+    <title>RahulSpace | Portfolio</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/animations.css">
+    
+    <!-- Favicon - Replace with your own -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
+</head>
+<body>
+    
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="loader">
+            <div class="loader-circle"></div>
+            <p>Loading RahulSpace...</p>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-icon">🚀</span>
+                <span class="logo-text">RahulSpace</span>
+            </div>
+            
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="#home" class="nav-link active" data-section="home">Home</a></li>
+                <li><a href="#projects" class="nav-link" data-section="projects">Projects</a></li>
+                <li><a href="#prompts" class="nav-link" data-section="prompts">Prompts</a></li>
+                <li><a href="#about" class="nav-link" data-section="about">About</a></li>
+                <li><a href="#contact" class="nav-link" data-section="contact">Contact</a></li>
+            </ul>
+
+            <!-- Control Buttons -->
+            <div class="nav-controls">
+                <!-- Theme Toggle -->
+                <button id="theme-toggle" class="control-btn" aria-label="Toggle theme">
+                    <span class="theme-icon sun-icon">☀️</span>
+                    <span class="theme-icon moon-icon">🌙</span>
+                </button>
+                
+                <!-- Cat Toggle -->
+                <button id="cat-toggle" class="control-btn" aria-label="Toggle cat animation">
+                    <span class="cat-icon">🐱</span>
+                </button>
+
+                <!-- Mobile Menu Toggle -->
+                <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Floating Cat Animation -->
+    <div id="floating-cat" class="floating-cat">
+        <div class="cat-body">
+            <div class="cat-face">🐱</div>
+            <div class="cat-trail"></div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        
+        <!-- Home Section -->
+        <section id="home" class="section active">
+            <div class="container">
+                <div class="home-content">
+                    <div class="home-text">
+                        <h1 class="glitch" data-text="Hey, I'm Rahul">Hey, I'm Rahul</h1>
+                        <p class="subtitle">Creator • Developer • Innovator</p>
+                        <p class="description">
+                            <!-- EDIT: Change your intro text here -->
+                            Building digital experiences that blend creativity with technology. 
+                            Welcome to my corner of the internet where ideas come to life.
+                        </p>
+                        <div class="cta-buttons">
+                            <a href="#projects" class="btn btn-primary glow-on-hover">View Projects</a>
+                            <a href="#contact" class="btn btn-secondary">Get in Touch</a>
+                        </div>
+                    </div>
+                    <div class="home-visual">
+                        <div class="floating-orb orb-1"></div>
+                        <div class="floating-orb orb-2"></div>
+                        <div class="floating-orb orb-3"></div>
+                    </div>
+                </div>
+                
+                <div class="scroll-indicator">
+                    <div class="mouse">
+                        <div class="wheel"></div>
+                    </div>
+                    <p>Scroll to explore</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects Section -->
+        <section id="projects" class="section">
+            <div class="container">
+                <h2 class="section-title">
+                    <span class="title-icon">💼</span>
+                    My Projects
+                </h2>
+                <p class="section-subtitle">A showcase of my recent work and creations</p>
+                
+                <!-- EDIT: Add/remove project cards here -->
+                <div class="projects-grid">
+                    
+                    <!-- Project Card 1 -->
+                    <div class="project-card" data-aos="fade-up">
+                        <div class="card-glow"></div>
+                        <div class="card-image">
+                            <div class="placeholder-img">
+                                <!-- EDIT: Replace with actual image -->
+                                <span class="placeholder-icon">🎨</span>
+                            </div>
+                            <div class="card-overlay">
+                                <a href="#" class="overlay-btn" target="_blank">View Live</a>
+                                <a href="#" class="overlay-btn" target="_blank">Source Code</a>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <h3 class="card-title">Project Alpha</h3>
+                            <p class="card-description">
+                                A revolutionary web app that transforms how users interact with digital content. 
+                                Built with modern technologies and optimized for performance.
+                            </p>
+                            <div class="card-tags">
+                                <span class="tag">React</span>
+                                <span class="tag">Node.js</span>
+                                <span class="tag">MongoDB</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Card 2 -->
+                    <div class="project-card" data-aos="fade-up" data-aos-delay="100">
+                        <div class="card-glow"></div>
+                        <div class="card-image">
+                            <div class="placeholder-img">
+                                <span class="placeholder-icon">🚀</span>
+                            </div>
+                            <div class="card-overlay">
+                                <a href="#" class="overlay-btn" target="_blank">View Live</a>
+                                <a href="#" class="overlay-btn" target="_blank">Source Code</a>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <h3 class="card-title">Project Beta</h3>
+                            <p class="card-description">
+                                An innovative solution for content creators featuring AI-powered tools 
+                                and seamless integration with popular platforms.
+                            </p>
+                            <div class="card-tags">
+                                <span class="tag">Python</span>
+                                <span class="tag">TensorFlow</span>
+                                <span class="tag">API</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Card 3 -->
+                    <div class="project-card" data-aos="fade-up" data-aos-delay="200">
+                        <div class="card-glow"></div>
+                        <div class="card-image">
+                            <div class="placeholder-img">
+                                <span class="placeholder-icon">⚡</span>
+                            </div>
+                            <div class="card-overlay">
+                                <a href="#" class="overlay-btn" target="_blank">View Live</a>
+                                <a href="#" class="overlay-btn" target="_blank">Source Code</a>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <h3 class="card-title">Project Gamma</h3>
+                            <p class="card-description">
+                                A beautiful e-commerce platform with advanced filtering, 
+                                real-time updates, and smooth checkout experience.
+                            </p>
+                            <div class="card-tags">
+                                <span class="tag">Next.js</span>
+                                <span class="tag">Stripe</span>
+                                <span class="tag">PostgreSQL</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Add more project cards by copying the structure above -->
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Prompts Section -->
+        <section id="prompts" class="section">
+            <div class="container">
+                <h2 class="section-title">
+                    <span class="title-icon">✨</span>
+                    Prompt Experiments
+                </h2>
+                <p class="section-subtitle">Exploring the power of AI through creative prompts</p>
+                
+                <!-- EDIT: Add/remove prompt cards here -->
+                <div class="prompts-grid">
+                    
+                    <!-- Prompt Card 1 -->
+                    <div class="prompt-card" data-aos="zoom-in">
+                        <div class="prompt-header">
+                            <span class="prompt-type">Image Generation</span>
+                        </div>
+                        <div class="prompt-content">
+                            <div class="prompt-input">
+                                <h4>Prompt:</h4>
+                                <p>"A futuristic city floating in the clouds at sunset, with neon lights and flying vehicles, cyberpunk aesthetic, highly detailed"</p>
+                            </div>
+                            <div class="prompt-arrow">→</div>
+                            <div class="prompt-output">
+                                <h4>Result:</h4>
+                                <div class="result-placeholder">
+                                    <!-- EDIT: Replace with actual result image -->
+                                    <span class="result-icon">🌆</span>
+                                    <p>Generated stunning cyberpunk cityscape</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Prompt Card 2 -->
+                    <div class="prompt-card" data-aos="zoom-in" data-aos-delay="100">
+                        <div class="prompt-header">
+                            <span class="prompt-type">Code Generation</span>
+                        </div>
+                        <div class="prompt-content">
+                            <div class="prompt-input">
+                                <h4>Prompt:</h4>
+                                <p>"Create a React component with a custom hook for fetching API data with loading states and error handling"</p>
+                            </div>
+                            <div class="prompt-arrow">→</div>
+                            <div class="prompt-output">
+                                <h4>Result:</h4>
+                                <div class="result-placeholder">
+                                    <span class="result-icon">💻</span>
+                                    <p>Generated reusable data fetching component</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Prompt Card 3 -->
+                    <div class="prompt-card" data-aos="zoom-in" data-aos-delay="200">
+                        <div class="prompt-header">
+                            <span class="prompt-type">Creative Writing</span>
+                        </div>
+                        <div class="prompt-content">
+                            <div class="prompt-input">
+                                <h4>Prompt:</h4>
+                                <p>"Write a short story about a robot discovering emotions for the first time"</p>
+                            </div>
+                            <div class="prompt-arrow">→</div>
+                            <div class="prompt-output">
+                                <h4>Result:</h4>
+                                <div class="result-placeholder">
+                                    <span class="result-icon">📖</span>
+                                    <p>Created touching 500-word narrative</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Add more prompt cards by copying the structure above -->
+
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="section">
+            <div class="container">
+                <h2 class="section-title">
+                    <span class="title-icon">👨‍💻</span>
+                    About Me
+                </h2>
+                
+                <div class="about-content">
+                    <div class="about-image" data-aos="fade-right">
+                        <div class="image-wrapper">
+                            <!-- EDIT: Replace with your actual profile image -->
+                            <div class="profile-placeholder">
+                                <span class="profile-icon">🧑‍🚀</span>
+                            </div>
+                            <div class="image-glow"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="about-text" data-aos="fade-left">
+                        <!-- EDIT: Change your bio text here -->
+                        <p class="about-intro">
+                            Hi! I'm Rahul, a passionate creator who loves building digital experiences 
+                            that make a difference. My journey in tech started with curiosity and evolved 
+                            into a mission to create innovative solutions.
+                        </p>
+                        <p>
+                            I specialize in web development, AI experimentation, and creative problem-solving. 
+                            Whether it's crafting beautiful interfaces or exploring the capabilities of emerging 
+                            technologies, I'm always excited to learn and grow.
+                        </p>
+                        <p>
+                            When I'm not coding, you'll find me exploring new AI tools, contributing to 
+                            open-source projects, or sharing knowledge with the community.
+                        </p>
+                        
+                        <!-- EDIT: Update your social links here -->
+                        <div class="social-links">
+                            <a href="https://github.com/rahul" target="_blank" class="social-btn" aria-label="GitHub">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                            <a href="https://twitter.com/rahul" target="_blank" class="social-btn" aria-label="Twitter">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/>
+                                </svg>
+                            </a>
+                            <a href="https://linkedin.com/in/rahul" target="_blank" class="social-btn" aria-label="LinkedIn">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/>
+                                    <circle cx="4" cy="4" r="2"/>
+                                </svg>
+                            </a>
+                            <a href="mailto:rahul@example.com" class="social-btn" aria-label="Email">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                    <polyline points="22,6 12,13 2,6"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="section">
+            <div class="container">
+                <h2 class="section-title">
+                    <span class="title-icon">📬</span>
+                    Get In Touch
+                </h2>
+                <p class="section-subtitle">Have a project in mind? Let's talk!</p>
+                
+                <div class="contact-content">
+                    <form class="contact-form" id="contactForm" data-aos="fade-up">
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" id="name" name="name" required placeholder="Your name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" required placeholder="your.email@example.com">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="subject">Subject</label>
+                            <input type="text" id="subject" name="subject" required placeholder="What's this about?">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="message">Message</label>
+                            <textarea id="message" name="message" rows="5" required placeholder="Tell me more about your project..."></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary glow-on-hover">
+                            Send Message
+                        </button>
+                        
+                        <div id="form-status" class="form-status"></div>
+                    </form>
+                    
+                    <div class="contact-info" data-aos="fade-up" data-aos-delay="200">
+                        <div class="info-card">
+                            <div class="info-icon">📧</div>
+                            <h3>Email</h3>
+                            <!-- EDIT: Change your email -->
+                            <p>rahul@example.com</p>
+                        </div>
+                        
+                        <div class="info-card">
+                            <div class="info-icon">📍</div>
+                            <h3>Location</h3>
+                            <!-- EDIT: Change your location -->
+                            <p>Mumbai, India</p>
+                        </div>
+                        
+                        <div class="info-card">
+                            <div class="info-icon">💼</div>
+                            <h3>Work</h3>
+                            <!-- EDIT: Change your availability status -->
+                            <p>Available for freelance</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <p class="footer-text">
+                    Built by Rahul using AI tools 🤖✨
+                </p>
+                <p class="footer-copy">
+                    © 2025 RahulSpace. All rights reserved.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Files -->
+    <script src="js/theme-toggle.js"></script>
+    <script src="js/cat-animation.js"></script>
+    <script src="js/section-loader.js"></script>
+    <script src="js/main.js"></script>
+
+</body>
+</html>
