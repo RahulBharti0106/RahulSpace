@@ -9,6 +9,18 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 console.log("✅ Supabase connected successfully!");
 
+// ---- Test Supabase Connection ----
+async function testSupabase() {
+  const { data, error } = await supabaseClient.from('projects').select('*');
+  if (error) {
+    console.error("❌ Supabase connection error:", error);
+  } else {
+    console.log("📦 Projects fetched successfully:", data);
+  }
+}
+testSupabase();
+
+
 
 // ===================================
 // MAIN JAVASCRIPT FILE
