@@ -1209,3 +1209,68 @@ body.dark-mode .cat-leg,
 body.dark-mode .cat-tail {
     box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
 }
+
+/* ---------------- Fade-In Animation ---------------- */
+.fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 1.5s ease forwards;
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------------- Glitch / Neon Effect ---------------- */
+.glitch {
+  position: relative;
+  color: #fff;
+  font-weight: 700;
+  font-size: 2em;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+.glitch::before {
+  animation: glitchTop 2s infinite linear alternate-reverse;
+  color: #00f0ff;
+  z-index: 1;
+}
+
+.glitch::after {
+  animation: glitchBottom 2s infinite linear alternate-reverse;
+  color: #ff00ff;
+  z-index: 2;
+}
+
+@keyframes glitchTop {
+  0% { clip: rect(0, 9999px, 5px, 0); transform: translate(-2px, -2px); }
+  20% { clip: rect(0, 9999px, 8px, 0); transform: translate(2px, 2px); }
+  40% { clip: rect(0, 9999px, 4px, 0); transform: translate(-1px, 1px); }
+  60% { clip: rect(0, 9999px, 6px, 0); transform: translate(1px, -1px); }
+  80% { clip: rect(0, 9999px, 5px, 0); transform: translate(-2px, 0); }
+  100% { clip: rect(0, 9999px, 5px, 0); transform: translate(0); }
+}
+
+@keyframes glitchBottom {
+  0% { clip: rect(5px, 9999px, 10px, 0); transform: translate(2px, 1px); }
+  20% { clip: rect(4px, 9999px, 8px, 0); transform: translate(-2px, -1px); }
+  40% { clip: rect(6px, 9999px, 9px, 0); transform: translate(1px, 1px); }
+  60% { clip: rect(5px, 9999px, 10px, 0); transform: translate(-1px, -1px); }
+  80% { clip: rect(4px, 9999px, 8px, 0); transform: translate(1px, 0); }
+  100% { clip: rect(5px, 9999px, 10px, 0); transform: translate(0); }
+}
