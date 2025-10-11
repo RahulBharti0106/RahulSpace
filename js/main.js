@@ -1,24 +1,30 @@
-// ==============================
+// ===================================
 // SUPABASE INITIALIZATION
-// ==============================
+// ===================================
 
-const SUPABASE_URL = "https://xxnqykwinpjqsuhlnrlv.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh4bnF5a3dpbnBqcXN1aGxucmx2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwNzc4MjMsImV4cCI6MjA3NTY1MzgyM30.QnYcMZS-Jz6rsmhZa07lv9m0EFEoMPGGhM165frewJI";
+// Replace with your real credentials
+const SUPABASE_URL = ' https://xxnqykwinpjqsuhlnrlv.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh4bnF5a3dpbnBqcXN1aGxucmx2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwNzc4MjMsImV4cCI6MjA3NTY1MzgyM30.QnYcMZS-Jz6rsmhZa07lv9m0EFEoMPGGhM165frewJI'; // from your Supabase settings
 
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Create a client
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-console.log("✅ Supabase connected successfully!");
-
-// ---- Test Supabase Connection ----
+// Test connection
 async function testSupabase() {
-  const { data, error } = await supabaseClient.from('projects').select('*');
-  if (error) {
-    console.error("❌ Supabase connection error:", error);
-  } else {
-    console.log("📦 Projects fetched successfully:", data);
+  try {
+    const { data, error } = await supabaseClient.from('projects').select('*');
+    if (error) {
+      console.error("❌ Supabase connection error:", error);
+    } else {
+      console.log("✅ Supabase connected successfully! Sample data:", data);
+    }
+  } catch (err) {
+    console.error("⚠️ Unexpected error:", err);
   }
 }
+
 testSupabase();
+
 
 
 
