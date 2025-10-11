@@ -14,7 +14,23 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeAOS(); // Animation on scroll
     
     console.log('🚀 RahulSpace initialized successfully!');
-});
+    // ----------------- Rotating Glitch Words -----------------
+const words = ["student", "thinker", "learner"];
+let index = 0;
+const subtitle = document.querySelector(".subtitle.glitch"); // select the glitch element
+
+function rotateWords() {
+    subtitle.setAttribute("data-text", words[index]); // for glitch effect
+    subtitle.textContent = words[index];             // visible text
+    index = (index + 1) % words.length;
+}
+
+// rotate every 3 seconds
+setInterval(rotateWords, 3000);
+
+// initialize immediately
+rotateWords();
+
 
 // ===================================
 // LOADING SCREEN
@@ -29,6 +45,7 @@ function initializeLoading() {
         }, 1000);
     });
 }
+});
 
 // ===================================
 // NAVIGATION
