@@ -127,7 +127,7 @@ function initializeMobileMenu() {
 }
 
 // ===================================
-// CONTACT FORM
+// CONTACT FORM WITH SUPABASE
 // ===================================
 
 function initializeContactForm() {
@@ -152,8 +152,16 @@ function initializeContactForm() {
             submitBtn.textContent = 'Sending...';
             submitBtn.disabled = true;
             
-            // Simulate form submission (replace with actual API call)
-            setTimeout(() => {
+            try {
+                // Save to Supabase
+                const { data, error } = await supabaseClient
+                    .from('contacts')
+                    .insert([formData]);
+                
+                if (error) {
+                    throw error;
+                }
+                
                 // Success message
                 formStatus.textContent = '✅ Message sent successfully! I\'ll get back to you soon.';
                 formStatus.className = 'form-status success';
@@ -161,46 +169,34 @@ function initializeContactForm() {
                 // Reset form
                 contactForm.reset();
                 
-                // Reset button
-                submitBtn.textContent = originalText;
-                submitBtn.disabled = false;
+                console.log('✅ Message saved to Supabase:', data);
                 
                 // Hide status after 5 seconds
                 setTimeout(() => {
                     formStatus.style.display = 'none';
+                    formStatus.className = 'form-status';
                 }, 5000);
-            }, 1500);
-            
-            // TODO: Replace with actual form submission
-            // Example using fetch API:
-            /*
-            try {
-                const response = await fetch('YOUR_FORM_ENDPOINT', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData)
-                });
                 
-                if (response.ok) {
-                    formStatus.textContent = '✅ Message sent successfully!';
-                    formStatus.className = 'form-status success';
-                    contactForm.reset();
-                } else {
-                    throw new Error('Failed to send message');
-                }
             } catch (error) {
-                formStatus.textContent = '❌ Failed to send message. Please try again.';
+                // Error message
+                console.error('❌ Error saving to Supabase:', error);
+                formStatus.textContent = '❌ Failed to send message. Please try again or email me directly.';
                 formStatus.className = 'form-status error';
+                
+                // Hide error after 5 seconds
+                setTimeout(() => {
+                    formStatus.style.display = 'none';
+                    formStatus.className = 'form-status';
+                }, 5000);
             } finally {
+                // Reset button
                 submitBtn.textContent = originalText;
                 submitBtn.disabled = false;
             }
-            */
         });
     }
 }
+
 
 // ===================================
 // ANIMATION ON SCROLL (AOS)
