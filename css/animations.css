@@ -256,3 +256,147 @@
         transform: scale(1);
     }
 }
+
+/* ===================================
+   TITLE & SUBTITLE ANIMATIONS
+   =================================== */
+
+/* Fade-in animation for title */
+.title-fade-in {
+    animation: titleFadeIn 1.5s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes titleFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(-30px);
+        filter: blur(10px);
+    }
+    50% {
+        opacity: 0.5;
+        transform: translateY(-15px);
+        filter: blur(5px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+    }
+}
+
+/* Neon glitch effect for subtitle */
+.neon-glitch {
+    position: relative;
+    animation: neonGlow 2s ease-in-out infinite alternate, subtitleSlideIn 1s ease-out 0.5s forwards;
+    opacity: 0;
+    text-shadow: 
+        0 0 10px var(--primary),
+        0 0 20px var(--primary),
+        0 0 30px var(--primary),
+        0 0 40px var(--secondary),
+        0 0 70px var(--secondary),
+        0 0 80px var(--secondary);
+}
+
+@keyframes neonGlow {
+    0%, 100% {
+        text-shadow: 
+            0 0 10px var(--primary),
+            0 0 20px var(--primary),
+            0 0 30px var(--primary),
+            0 0 40px var(--secondary),
+            0 0 70px var(--secondary);
+    }
+    50% {
+        text-shadow: 
+            0 0 5px var(--primary),
+            0 0 10px var(--primary),
+            0 0 15px var(--primary),
+            0 0 20px var(--accent),
+            0 0 35px var(--accent);
+    }
+}
+
+@keyframes subtitleSlideIn {
+    0% {
+        opacity: 0;
+        transform: translateX(-50px);
+        filter: blur(5px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+        filter: blur(0);
+    }
+}
+
+/* Glitch effect on hover */
+.neon-glitch::before,
+.neon-glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+}
+
+.neon-glitch:hover::before {
+    animation: glitchTop 0.3s infinite;
+    color: var(--accent);
+    opacity: 0.7;
+}
+
+.neon-glitch:hover::after {
+    animation: glitchBottom 0.3s infinite;
+    color: var(--secondary);
+    opacity: 0.7;
+}
+
+@keyframes glitchTop {
+    0%, 100% {
+        clip-path: inset(0 0 0 0);
+        transform: translate(0);
+    }
+    20% {
+        clip-path: inset(0 0 80% 0);
+        transform: translate(-3px, 2px);
+    }
+    40% {
+        clip-path: inset(20% 0 60% 0);
+        transform: translate(3px, -2px);
+    }
+    60% {
+        clip-path: inset(40% 0 40% 0);
+        transform: translate(-2px, 1px);
+    }
+    80% {
+        clip-path: inset(60% 0 20% 0);
+        transform: translate(2px, -1px);
+    }
+}
+
+@keyframes glitchBottom {
+    0%, 100% {
+        clip-path: inset(0 0 0 0);
+        transform: translate(0);
+    }
+    20% {
+        clip-path: inset(80% 0 0 0);
+        transform: translate(2px, -2px);
+    }
+    40% {
+        clip-path: inset(60% 0 20% 0);
+        transform: translate(-2px, 2px);
+    }
+    60% {
+        clip-path: inset(40% 0 40% 0);
+        transform: translate(1px, -1px);
+    }
+    80% {
+        clip-path: inset(20% 0 60% 0);
+        transform: translate(-1px, 1px);
+    }
+}
