@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - RahulSpace</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* Login Screen */
+        .login-container {
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .login-container h1 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+        }
+
+        .login-container p {
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-login:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        /* Admin Dashboard */
+        .admin-dashboard {
+            display: none;
+            max-width: 1400px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .admin-dashboard.active {
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem 0;
+            color: white;
+        }
+
+        .sidebar-header {
+            padding: 0 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-header p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.2);
+            border-left-color: white;
+        }
+
+        .nav-item i {
+            margin-right: 0.5rem;
+        }
+
+        .logout-btn {
+            margin: 2rem 1.5rem;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            max-height: 90vh;
+            overflow-y: auto;
+            background: #f5f5f5;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .section-header {
+            margin-bottom: 2rem;
+        }
+
+        .section-header h2 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-header p {
+            color: #666;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .card h3 {
+            color: #667eea;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        /* Form Styles */
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        /* Table */
+        .data-table {
+            width: 100%;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .data-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            background: #667eea;
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .data-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .data-table tr:hover {
+            background: #f9fafb;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-sm {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.85rem;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #10b981;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Success/Error Messages */
+        .message {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .message.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+
+        .message.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+
+        /* Color Picker */
+        input[type="color"] {
+            width: 60px;
+            height: 40px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        /* Image Upload */
+        .image-upload {
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .image-upload:hover {
+            background: #f0f4ff;
+        }
+
+        .image-upload input[type="file"] {
+            display: none;
+        }
+
+        .image-preview {
+            margin-top: 1rem;
+            max-width: 200px;
+            border-radius: 10px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .admin-dashboard {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Login Screen -->
+    <div class="login-container" id="loginContainer">
+        <h1>🚀 Admin Panel</h1>
+        <p>RahulSpace Dashboard</p>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="loginEmail">Email</label>
+                <input type="email" id="loginEmail" required placeholder="your@email.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" required placeholder="••••••••">
+            </div>
+            
+            <button type="submit" class="btn-login" id="loginBtn">Login</button>
+        </form>
+        
+        <div class="error-message" id="loginError"></div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div class="admin-dashboard" id="adminDashboard">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>RahulSpace</h2>
+                <p id="adminEmail"></p>
+            </div>
+            
+            <ul class="nav-menu">
+                <li class="nav-item active" data-section="dashboard">📊 Dashboard</li>
+                <li class="nav-item" data-section="projects">💼 Projects</li>
+                <li class="nav-item" data-section="prompts">✨ Prompts</li>
+                <li class="nav-item" data-section="skills">🎯 Skills</li>
+                <li class="nav-item" data-section="site-settings">⚙️ Site Settings</li>
+                <li class="nav-item" data-section="appearance">🎨 Appearance</li>
+                <li class="nav-item" data-section="messages">📧 Messages</li>
+            </ul>
+            
+            <button class="logout-btn" id="logoutBtn">🚪 Logout</button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            
+            <!-- Dashboard Section -->
+            <div class="content-section active" id="dashboard">
+                <div class="section-header">
+                    <h2>Dashboard Overview</h2>
+                    <p>Welcome back! Here's what's happening.</p>
+                </div>
+                
+                <div class="loading" id="dashboardLoading">
+                    <div class="spinner"></div>
+                    <p>Loading dashboard...</p>
+                </div>
+                
+                <div id="dashboardContent" style="display: none;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                        <div class="card" style="text-align: center;">
+                            <h3 style="font-size: 3rem; margin-bottom: 0.5rem;" id="projectsCount">0</h3>
+                            <p style="color: #666;">Total Projects</p>
+                        </div>
+                        <div class="card" style="text-align: center;">
+                            <h3 style="font-size: 3rem; margin-bottom: 0.5rem;" id="promptsCount">0</h3>
+                            <p style="color: #666;">Total Prompts</p>
+                        </div>
+                        <div class="card" style="text-align: center;">
+                            <h3 style="font-size: 3rem; margin-bottom: 0.5rem;" id="skillsCount">0</h3>
+                            <p style="color: #666;">Total Skills</p>
+                        </div>
+                        <div class="card" style="text-align: center;">
+                            <h3 style="font-size: 3rem; margin-bottom: 0.5rem;" id="messagesCount">0</h3>
+                            <p style="color: #666;">Messages Received</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Projects Section -->
+            <div class="content-section" id="projects">
+                <div class="section-header">
+                    <h2>Manage Projects</h2>
+                    <p>Add, edit, or delete your portfolio projects</p>
+                </div>
+                
+                <div class="message" id="projectMessage"></div>
+                
+                <div class="card">
+                    <h3>Add New Project</h3>
+                    <form id="projectForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Project Title *</label>
+                                <input type="text" id="projectTitle" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Display Order</label>
+                                <input type="number" id="projectOrder" value="0">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Description *</label>
+                            <textarea id="projectDescription" required></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Tags (comma separated) *</label>
+                            <input type="text" id="projectTags" placeholder="React, Node.js, MongoDB" required>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Live Demo URL</label>
+                                <input type="url" id="projectLiveUrl" placeholder="https://...">
+                            </div>
+                            <div class="form-group">
+                                <label>Source Code URL</label>
+                                <input type="url" id="projectSourceUrl" placeholder="https://github.com/...">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Project Image</label>
+                            <div class="image-upload" onclick="document.getElementById('projectImageFile').click()">
+                                <input type="file" id="projectImageFile" accept="image/*">
+                                <p>📸 Click to upload image or paste URL below</p>
+                            </div>
+                            <input type="url" id="projectImageUrl" placeholder="Or paste image URL" style="margin-top: 1rem;">
+                            <img id="projectImagePreview" class="image-preview" style="display: none;">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="projectVisible" checked>
+                                Visible on website
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Add Project</button>
+                    </form>
+                </div>
+                
+                <div class="card">
+                    <h3>Existing Projects</h3>
+                    <div class="loading" id="projectsLoading">
+                        <div class="spinner"></div>
+                        <p>Loading projects...</p>
+                    </div>
+                    <div class="data-table" id="projectsTable" style="display: none;"></div>
+                </div>
+            </div>
+
+            <!-- Prompts Section -->
+            <div class="content-section" id="prompts">
+                <div class="section-header">
+                    <h2>Manage Prompts</h2>
+                    <p>Add your AI prompt experiments</p>
+                </div>
+                
+                <div class="message" id="promptMessage"></div>
+                
+                <div class="card">
+                    <h3>Add New Prompt</h3>
+                    <form id="promptForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Prompt Type *</label>
+                                <select id="promptType" required>
+                                    <option value="">Select type...</option>
+                                    <option value="Image Generation">Image Generation</option>
+                                    <option value="Code Generation">Code Generation</option>
+                                    <option value="Creative Writing">Creative Writing</option>
+                                    <option value="Text Analysis">Text Analysis</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Display Order</label>
+                                <input type="number" id="promptOrder" value="0">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Prompt Text *</label>
+                            <textarea id="promptText" required placeholder="Your AI prompt..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Result/Output *</label>
+                            <textarea id="promptResult" required placeholder="What the AI generated..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Result Image (Optional)</label>
+                            <div class="image-upload" onclick="document.getElementById('promptImageFile').click()">
+                                <input type="file" id="promptImageFile" accept="image/*">
+                                <p>📸 Click to upload result image or paste URL below</p>
+                            </div>
+                            <input type="url" id="promptImageUrl" placeholder="Or paste image URL" style="margin-top: 1rem;">
+                            <img id="promptImagePreview" class="image-preview" style="display: none;">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="promptVisible" checked>
+                                Visible on website
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Add Prompt</button>
+                    </form>
+                </div>
+                
+                <div class="card">
+                    <h3>Existing Prompts</h3>
+                    <div class="loading" id="promptsLoading">
+                        <div class="spinner"></div>
+                        <p>Loading prompts...</p>
+                    </div>
+                    <div class="data-table" id="promptsTable" style="display: none;"></div>
+                </div>
+            </div>
+
+            <!-- Skills Section -->
+            <div class="content-section" id="skills">
+                <div class="section-header">
+                    <h2>Manage Skills</h2>
+                    <p>Add your skills and technologies</p>
+                </div>
+                
+                <div class="message" id="skillMessage"></div>
+                
+                <div class="card">
+                    <h3>Add New Skill</h3>
+                    <form id="skillForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Category *</label>
+                                <select id="skillCategory" required>
+                                    <option value="">Select category...</option>
+                                    <option value="Frontend">Frontend</option>
+                                    <option value="Backend">Backend</option>
+                                    <option value="Database">Database</option>
+                                    <option value="Tools">Tools</option>
+                                    <option value="Languages">Languages</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Skill Name *</label>
+                                <input type="text" id="skillName" required placeholder="React, Python, etc.">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Icon/Emoji</label>
+                                <input type="text" id="skillIcon" placeholder="⚛️">
+                            </div>
+                            <div class="form-group">
+                                <label>Proficiency (0-100)</label>
+                                <input type="number" id="skillProficiency" min="0" max="100" value="50">
+                            </div>
+                            <div class="form-group">
+                                <label>Display Order</label>
+                                <input type="number" id="skillOrder" value="0">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="skillVisible" checked>
+                                Visible on website
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Add Skill</button>
+                    </form>
+                </div>
+                
+                <div class="card">
+                    <h3>Existing Skills</h3>
+                    <div class="loading" id="skillsLoading">
+                        <div class="spinner"></div>
+                        <p>Loading skills...</p>
+                    </div>
+                    <div class="data-table" id="skillsTable" style="display: none;"></div>
+                </div>
+            </div>
+
+            <!-- Site Settings Section -->
+            <div class="content-section" id="site-settings">
+                <div class="section-header">
+                    <h2>Site Settings</h2>
+                    <p>Edit your website content</p>
+                </div>
+                
+                <div class="message" id="settingsMessage"></div>
+                
+                <!-- Home Section -->
+                <div class="card">
+                    <h3>Home Section</h3>
+                    <form id="homeForm">
+                        <div class="form-group">
+                            <label>Greeting *</label>
+                            <input type="text" id="homeGreeting" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Subtitle *</label>
+                            <input type="text" id="homeSubtitle" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Description *</label>
+                            <textarea id="homeDescription" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success">Save Home Section</button>
+                    </form>
+                </div>
+                
+                <!-- About Section -->
+                <div class="card">
+                    <h3>About Section</h3>
+                    <form id="aboutForm">
+                        <div class="form-group">
+                            <label>Intro Paragraph *</label>
+                            <textarea id="aboutIntro" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Bio Paragraph 1 *</label>
+                            <textarea id="aboutBio1" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Bio Paragraph 2 *</label>
+                            <textarea id="aboutBio2" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Profile Image URL</label>
+                            <input type="url" id="aboutProfileImage">
+                        </div>
+                        <button type="submit" class="btn btn-success">Save About Section</button>
+                    </form>
+                </div>
+                
+                <!-- Contact Info -->
+                <div class="card">
+                    <h3>Contact Information</h3>
+                    <form id="contactForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Email *</label>
+                                <input type="email" id="contactEmail" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Location *</label>
+                                <input type="text" id="contactLocation" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Work Status *</label>
+                            <input type="text" id="contactWork" required>
+                        </div>
+                        <button type="submit" class="btn btn-success">Save Contact Info</button>
+                    </form>
+                </div>
+                
+                <!-- Social Links -->
+                <div class="card">
+                    <h3>Social Media Links</h3>
+                    <form id="socialForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>GitHub URL</label>
+                                <input type="url" id="socialGithub">
+                            </div>
+                            <div class="form-group">
+                                <label>Twitter/X URL</label>
+                                <input type="url" id="socialTwitter">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>LinkedIn URL</label>
+                                <input type="url" id="socialLinkedin">
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" id="socialEmail">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-success">Save Social Links</button>
+                    </form>
+                </div>
+                
+                <!-- Section Visibility -->
+                <div class="card">
+                    <h3>Section Visibility</h3>
+                    <p style="color: #666; margin-bottom: 1rem;">Toggle which sections appear on your website</p>
+                    <form id="visibilityForm">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="visHome" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                Home Section
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="visProjects" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                Projects Section
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="visPrompts" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                Prompts Section
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="visSkills" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                Skills Section
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="visAbout" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                About Section
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="visContact" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                Contact Section
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-success" style="margin-top: 1.5rem;">Save Visibility Settings</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Appearance Section -->
+            <div class="content-section" id="appearance">
+                <div class="section-header">
+                    <h2>Appearance</h2>
+                    <p>Customize your website's look and feel</p>
+                </div>
+                
+                <div class="message" id="appearanceMessage"></div>
+                
+                <div class="card">
+                    <h3>Theme Colors</h3>
+                    <form id="appearanceForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Primary Color</label>
+                                <div style="display: flex; gap: 1rem; align-items: center;">
+                                    <input type="color" id="primaryColor" value="#6366f1">
+                                    <input type="text" id="primaryColorHex" value="#6366f1" style="flex: 1;">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Secondary Color</label>
+                                <div style="display: flex; gap: 1rem; align-items: center;">
+                                    <input type="color" id="secondaryColor" value="#8b5cf6">
+                                    <input type="text" id="secondaryColorHex" value="#8b5cf6" style="flex: 1;">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Accent Color</label>
+                                <div style="display: flex; gap: 1rem; align-items: center;">
+                                    <input type="color" id="accentColor" value="#ec4899">
+                                    <input type="text" id="accentColorHex" value="#ec4899" style="flex: 1;">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Font Family</label>
+                            <select id="fontFamily">
+                                <option value="Poppins">Poppins</option>
+                                <option value="Inter">Inter</option>
+                                <option value="Roboto">Roboto</option>
+                                <option value="Montserrat">Montserrat</option>
+                                <option value="Open Sans">Open Sans</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-success">Save Appearance</button>
+                        <button type="button" class="btn btn-secondary" onclick="resetAppearance()">Reset to Default</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Messages Section -->
+            <div class="content-section" id="messages">
+                <div class="section-header">
+                    <h2>Contact Messages</h2>
+                    <p>View messages from your contact form</p>
+                </div>
+                
+                <div class="card">
+                    <div class="loading" id="messagesLoading">
+                        <div class="spinner"></div>
+                        <p>Loading messages...</p>
+                    </div>
+                    <div class="data-table" id="messagesTable" style="display: none;"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="js/admin.js"></script>
+
+</body>
+</html>
