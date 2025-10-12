@@ -149,7 +149,9 @@ async function loadDashboard() {
 // PROJECTS
 // ===================================
 
-// Add Project
+let editingProjectId = null;
+
+// Add/Edit Project
 document.getElementById('projectForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
@@ -168,33 +170,56 @@ document.getElementById('projectForm').addEventListener('submit', async (e) => {
     const fileInput = document.getElementById('projectImageFile');
     if (fileInput.files.length > 0) {
         finalImageUrl = await uploadImage(fileInput.files[0], 'project');
+        if (!finalImageUrl && !imageUrl) {
+            return; // Upload failed and no URL provided
+        }
     }
     
+    const projectData = {
+        title,
+        description,
+        tags,
+        live_url: liveUrl,
+        source_url: sourceUrl,
+        image_url: finalImageUrl,
+        is_visible: isVisible,
+        display_order: parseInt(order)
+    };
+    
     try {
-        const { error } = await supabase
-            .from('projects')
-            .insert([{
-                title,
-                description,
-                tags,
-                live_url: liveUrl,
-                source_url: sourceUrl,
-                image_url: finalImageUrl,
-                is_visible: isVisible,
-                display_order: parseInt(order)
-            }]);
+        if (editingProjectId) {
+            // Update existing project
+            const { error } = await supabase
+                .from('projects')
+                .update(projectData)
+                .eq('id', editingProjectId);
+            
+            if (error) throw error;
+            
+            showMessage('projectMessage', 'Project updated successfully!', 'success');
+            editingProjectId = null;
+            document.querySelector('#projectForm button[type="submit"]').textContent = 'Add Project';
+            document.getElementById('cancelProjectBtn').style.display = 'none';
+            
+        } else {
+            // Insert new project
+            const { error } = await supabase
+                .from('projects')
+                .insert([projectData]);
+            
+            if (error) throw error;
+            
+            showMessage('projectMessage', 'Project added successfully!', 'success');
+        }
         
-        if (error) throw error;
-        
-        showMessage('projectMessage', 'Project added successfully!', 'success');
         document.getElementById('projectForm').reset();
-        document.getElementById('projectImagePreview').style.display = 'none';
+        document.getElementById('projectImagePreviewContainer').style.display = 'none';
         loadProjects();
         loadDashboard();
         
     } catch (error) {
-        console.error('Error adding project:', error);
-        showMessage('projectMessage', 'Failed to add project. Please try again.', 'error');
+        console.error('Error saving project:', error);
+        showMessage('projectMessage', 'Failed to save project. Please try again.', 'error');
     }
 });
 
@@ -213,6 +238,10 @@ async function loadProjects() {
         
         let html = '<table><thead><tr><th>Title</th><th>Tags</th><th>Visible</th><th>Order</th><th>Actions</th></tr></thead><tbody>';
         
+        if (data.length === 0) {
+            html += '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: #666;">No projects yet. Add your first project above!</td></tr>';
+        }
+        
         data.forEach(project => {
             html += `
                 <tr>
@@ -221,6 +250,7 @@ async function loadProjects() {
                     <td>${project.is_visible ? '✅ Yes' : '❌ No'}</td>
                     <td>${project.display_order}</td>
                     <td class="action-btns">
+                        <button class="btn btn-primary btn-sm" onclick="editProject('${project.id}')">Edit</button>
                         <button class="btn btn-danger btn-sm" onclick="deleteProject('${project.id}')">Delete</button>
                     </td>
                 </tr>
@@ -235,6 +265,51 @@ async function loadProjects() {
         
     } catch (error) {
         console.error('Error loading projects:', error);
+    }
+}
+
+// Edit Project
+async function editProject(id) {
+    try {
+        const { data, error } = await supabase
+            .from('projects')
+            .select('*')
+            .eq('id', id)
+            .single();
+        
+        if (error) throw error;
+        
+        // Scroll to form
+        document.getElementById('projectForm').scrollIntoView({ behavior: 'smooth' });
+        
+        // Fill form
+        document.getElementById('projectTitle').value = data.title;
+        document.getElementById('projectDescription').value = data.description;
+        document.getElementById('projectTags').value = data.tags.join(', ');
+        document.getElementById('projectLiveUrl').value = data.live_url || '';
+        document.getElementById('projectSourceUrl').value = data.source_url || '';
+        document.getElementById('projectImageUrl').value = data.image_url || '';
+        document.getElementById('projectVisible').checked = data.is_visible;
+        document.getElementById('projectOrder').value = data.display_order;
+        
+        // Show image preview
+        if (data.image_url) {
+            document.getElementById('projectImagePreview').src = data.image_url;
+            document.getElementById('projectImagePreviewContainer').style.display = 'block';
+        }
+        
+        // Change button text and show cancel
+        document.querySelector('#projectForm button[type="submit"]').textContent = 'Update Project';
+        document.getElementById('cancelProjectBtn').style.display = 'inline-block';
+        
+        // Set editing mode
+        editingProjectId = id;
+        
+        showMessage('projectMessage', 'Editing project. Make changes and click "Update Project".', 'success');
+        
+    } catch (error) {
+        console.error('Error loading project for edit:', error);
+        showMessage('projectMessage', 'Failed to load project for editing.', 'error');
     }
 }
 
@@ -260,14 +335,14 @@ async function deleteProject(id) {
     }
 }
 
-// Image Preview
+// Image Preview for Projects
 document.getElementById('projectImageFile').addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (file) {
         const reader = new FileReader();
         reader.onload = (e) => {
             document.getElementById('projectImagePreview').src = e.target.result;
-            document.getElementById('projectImagePreview').style.display = 'block';
+            document.getElementById('projectImagePreviewContainer').style.display = 'block';
         };
         reader.readAsDataURL(file);
     }
@@ -277,7 +352,9 @@ document.getElementById('projectImageUrl').addEventListener('input', (e) => {
     const url = e.target.value;
     if (url) {
         document.getElementById('projectImagePreview').src = url;
-        document.getElementById('projectImagePreview').style.display = 'block';
+        document.getElementById('projectImagePreviewContainer').style.display = 'block';
+    } else {
+        document.getElementById('projectImagePreviewContainer').style.display = 'none';
     }
 });
 
@@ -285,7 +362,9 @@ document.getElementById('projectImageUrl').addEventListener('input', (e) => {
 // PROMPTS
 // ===================================
 
-// Add Prompt
+let editingPromptId = null;
+
+// Add/Edit Prompt
 document.getElementById('promptForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
@@ -302,31 +381,54 @@ document.getElementById('promptForm').addEventListener('submit', async (e) => {
     const fileInput = document.getElementById('promptImageFile');
     if (fileInput.files.length > 0) {
         finalImageUrl = await uploadImage(fileInput.files[0], 'prompt');
+        if (!finalImageUrl && !imageUrl) {
+            return;
+        }
     }
     
+    const promptData = {
+        prompt_type: type,
+        prompt_text: text,
+        result_text: result,
+        result_image_url: finalImageUrl,
+        is_visible: isVisible,
+        display_order: parseInt(order)
+    };
+    
     try {
-        const { error } = await supabase
-            .from('prompts')
-            .insert([{
-                prompt_type: type,
-                prompt_text: text,
-                result_text: result,
-                result_image_url: finalImageUrl,
-                is_visible: isVisible,
-                display_order: parseInt(order)
-            }]);
+        if (editingPromptId) {
+            // Update existing prompt
+            const { error } = await supabase
+                .from('prompts')
+                .update(promptData)
+                .eq('id', editingPromptId);
+            
+            if (error) throw error;
+            
+            showMessage('promptMessage', 'Prompt updated successfully!', 'success');
+            editingPromptId = null;
+            document.querySelector('#promptForm button[type="submit"]').textContent = 'Add Prompt';
+            document.getElementById('cancelPromptBtn').style.display = 'none';
+            
+        } else {
+            // Insert new prompt
+            const { error } = await supabase
+                .from('prompts')
+                .insert([promptData]);
+            
+            if (error) throw error;
+            
+            showMessage('promptMessage', 'Prompt added successfully!', 'success');
+        }
         
-        if (error) throw error;
-        
-        showMessage('promptMessage', 'Prompt added successfully!', 'success');
         document.getElementById('promptForm').reset();
-        document.getElementById('promptImagePreview').style.display = 'none';
+        document.getElementById('promptImagePreviewContainer').style.display = 'none';
         loadPrompts();
         loadDashboard();
         
     } catch (error) {
-        console.error('Error adding prompt:', error);
-        showMessage('promptMessage', 'Failed to add prompt. Please try again.', 'error');
+        console.error('Error saving prompt:', error);
+        showMessage('promptMessage', 'Failed to save prompt. Please try again.', 'error');
     }
 });
 
@@ -345,6 +447,10 @@ async function loadPrompts() {
         
         let html = '<table><thead><tr><th>Type</th><th>Prompt</th><th>Visible</th><th>Order</th><th>Actions</th></tr></thead><tbody>';
         
+        if (data.length === 0) {
+            html += '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: #666;">No prompts yet. Add your first prompt above!</td></tr>';
+        }
+        
         data.forEach(prompt => {
             html += `
                 <tr>
@@ -353,6 +459,7 @@ async function loadPrompts() {
                     <td>${prompt.is_visible ? '✅ Yes' : '❌ No'}</td>
                     <td>${prompt.display_order}</td>
                     <td class="action-btns">
+                        <button class="btn btn-primary btn-sm" onclick="editPrompt('${prompt.id}')">Edit</button>
                         <button class="btn btn-danger btn-sm" onclick="deletePrompt('${prompt.id}')">Delete</button>
                     </td>
                 </tr>
@@ -367,6 +474,43 @@ async function loadPrompts() {
         
     } catch (error) {
         console.error('Error loading prompts:', error);
+    }
+}
+
+// Edit Prompt
+async function editPrompt(id) {
+    try {
+        const { data, error } = await supabase
+            .from('prompts')
+            .select('*')
+            .eq('id', id)
+            .single();
+        
+        if (error) throw error;
+        
+        document.getElementById('promptForm').scrollIntoView({ behavior: 'smooth' });
+        
+        document.getElementById('promptType').value = data.prompt_type;
+        document.getElementById('promptText').value = data.prompt_text;
+        document.getElementById('promptResult').value = data.result_text;
+        document.getElementById('promptImageUrl').value = data.result_image_url || '';
+        document.getElementById('promptVisible').checked = data.is_visible;
+        document.getElementById('promptOrder').value = data.display_order;
+        
+        if (data.result_image_url) {
+            document.getElementById('promptImagePreview').src = data.result_image_url;
+            document.getElementById('promptImagePreviewContainer').style.display = 'block';
+        }
+        
+        document.querySelector('#promptForm button[type="submit"]').textContent = 'Update Prompt';
+        document.getElementById('cancelPromptBtn').style.display = 'inline-block';
+        editingPromptId = id;
+        
+        showMessage('promptMessage', 'Editing prompt. Make changes and click "Update Prompt".', 'success');
+        
+    } catch (error) {
+        console.error('Error loading prompt for edit:', error);
+        showMessage('promptMessage', 'Failed to load prompt for editing.', 'error');
     }
 }
 
@@ -399,7 +543,7 @@ document.getElementById('promptImageFile').addEventListener('change', (e) => {
         const reader = new FileReader();
         reader.onload = (e) => {
             document.getElementById('promptImagePreview').src = e.target.result;
-            document.getElementById('promptImagePreview').style.display = 'block';
+            document.getElementById('promptImagePreviewContainer').style.display = 'block';
         };
         reader.readAsDataURL(file);
     }
@@ -409,7 +553,9 @@ document.getElementById('promptImageUrl').addEventListener('input', (e) => {
     const url = e.target.value;
     if (url) {
         document.getElementById('promptImagePreview').src = url;
-        document.getElementById('promptImagePreview').style.display = 'block';
+        document.getElementById('promptImagePreviewContainer').style.display = 'block';
+    } else {
+        document.getElementById('promptImagePreviewContainer').style.display = 'none';
     }
 });
 
@@ -417,7 +563,9 @@ document.getElementById('promptImageUrl').addEventListener('input', (e) => {
 // SKILLS
 // ===================================
 
-// Add Skill
+let editingSkillId = null;
+
+// Add/Edit Skill
 document.getElementById('skillForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
@@ -428,28 +576,48 @@ document.getElementById('skillForm').addEventListener('submit', async (e) => {
     const isVisible = document.getElementById('skillVisible').checked;
     const order = document.getElementById('skillOrder').value;
     
+    const skillData = {
+        category,
+        skill_name: name,
+        icon,
+        proficiency: parseInt(proficiency),
+        is_visible: isVisible,
+        display_order: parseInt(order)
+    };
+    
     try {
-        const { error } = await supabase
-            .from('skills')
-            .insert([{
-                category,
-                skill_name: name,
-                icon,
-                proficiency: parseInt(proficiency),
-                is_visible: isVisible,
-                display_order: parseInt(order)
-            }]);
+        if (editingSkillId) {
+            // Update existing skill
+            const { error } = await supabase
+                .from('skills')
+                .update(skillData)
+                .eq('id', editingSkillId);
+            
+            if (error) throw error;
+            
+            showMessage('skillMessage', 'Skill updated successfully!', 'success');
+            editingSkillId = null;
+            document.querySelector('#skillForm button[type="submit"]').textContent = 'Add Skill';
+            document.getElementById('cancelSkillBtn').style.display = 'none';
+            
+        } else {
+            // Insert new skill
+            const { error } = await supabase
+                .from('skills')
+                .insert([skillData]);
+            
+            if (error) throw error;
+            
+            showMessage('skillMessage', 'Skill added successfully!', 'success');
+        }
         
-        if (error) throw error;
-        
-        showMessage('skillMessage', 'Skill added successfully!', 'success');
         document.getElementById('skillForm').reset();
         loadSkills();
         loadDashboard();
         
     } catch (error) {
-        console.error('Error adding skill:', error);
-        showMessage('skillMessage', 'Failed to add skill. Please try again.', 'error');
+        console.error('Error saving skill:', error);
+        showMessage('skillMessage', 'Failed to save skill. Please try again.', 'error');
     }
 });
 
@@ -468,6 +636,10 @@ async function loadSkills() {
         
         let html = '<table><thead><tr><th>Category</th><th>Skill</th><th>Icon</th><th>Proficiency</th><th>Visible</th><th>Actions</th></tr></thead><tbody>';
         
+        if (data.length === 0) {
+            html += '<tr><td colspan="6" style="text-align: center; padding: 2rem; color: #666;">No skills yet. Add your first skill above!</td></tr>';
+        }
+        
         data.forEach(skill => {
             html += `
                 <tr>
@@ -477,6 +649,7 @@ async function loadSkills() {
                     <td>${skill.proficiency}%</td>
                     <td>${skill.is_visible ? '✅ Yes' : '❌ No'}</td>
                     <td class="action-btns">
+                        <button class="btn btn-primary btn-sm" onclick="editSkill('${skill.id}')">Edit</button>
                         <button class="btn btn-danger btn-sm" onclick="deleteSkill('${skill.id}')">Delete</button>
                     </td>
                 </tr>
@@ -491,6 +664,38 @@ async function loadSkills() {
         
     } catch (error) {
         console.error('Error loading skills:', error);
+    }
+}
+
+// Edit Skill
+async function editSkill(id) {
+    try {
+        const { data, error } = await supabase
+            .from('skills')
+            .select('*')
+            .eq('id', id)
+            .single();
+        
+        if (error) throw error;
+        
+        document.getElementById('skillForm').scrollIntoView({ behavior: 'smooth' });
+        
+        document.getElementById('skillCategory').value = data.category;
+        document.getElementById('skillName').value = data.skill_name;
+        document.getElementById('skillIcon').value = data.icon || '';
+        document.getElementById('skillProficiency').value = data.proficiency;
+        document.getElementById('skillVisible').checked = data.is_visible;
+        document.getElementById('skillOrder').value = data.display_order;
+        
+        document.querySelector('#skillForm button[type="submit"]').textContent = 'Update Skill';
+        document.getElementById('cancelSkillBtn').style.display = 'inline-block';
+        editingSkillId = id;
+        
+        showMessage('skillMessage', 'Editing skill. Make changes and click "Update Skill".', 'success');
+        
+    } catch (error) {
+        console.error('Error loading skill for edit:', error);
+        showMessage('skillMessage', 'Failed to load skill for editing.', 'error');
     }
 }
 
@@ -804,6 +1009,10 @@ async function loadMessages() {
         
         let html = '<table><thead><tr><th>Date</th><th>Name</th><th>Email</th><th>Subject</th><th>Message</th></tr></thead><tbody>';
         
+        if (data.length === 0) {
+            html += '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: #666;">No messages yet.</td></tr>';
+        }
+        
         data.forEach(msg => {
             const date = new Date(msg.created_at).toLocaleDateString();
             html += `
@@ -852,9 +1061,57 @@ async function uploadImage(file, type) {
         
     } catch (error) {
         console.error('Error uploading image:', error);
-        alert('Failed to upload image. Please try pasting a URL instead.');
+        alert('Failed to upload image. Please try using image URL instead or check storage policy in Supabase.');
         return '';
     }
+}
+
+// ===================================
+// IMAGE REMOVAL FUNCTIONS
+// ===================================
+
+function removeProjectImage() {
+    document.getElementById('projectImageFile').value = '';
+    document.getElementById('projectImageUrl').value = '';
+    document.getElementById('projectImagePreview').src = '';
+    document.getElementById('projectImagePreviewContainer').style.display = 'none';
+}
+
+function removePromptImage() {
+    document.getElementById('promptImageFile').value = '';
+    document.getElementById('promptImageUrl').value = '';
+    document.getElementById('promptImagePreview').src = '';
+    document.getElementById('promptImagePreviewContainer').style.display = 'none';
+}
+
+// ===================================
+// CANCEL EDIT FUNCTIONS
+// ===================================
+
+function cancelProjectEdit() {
+    editingProjectId = null;
+    document.getElementById('projectForm').reset();
+    removeProjectImage();
+    document.querySelector('#projectForm button[type="submit"]').textContent = 'Add Project';
+    document.getElementById('cancelProjectBtn').style.display = 'none';
+    showMessage('projectMessage', 'Edit cancelled.', 'success');
+}
+
+function cancelPromptEdit() {
+    editingPromptId = null;
+    document.getElementById('promptForm').reset();
+    removePromptImage();
+    document.querySelector('#promptForm button[type="submit"]').textContent = 'Add Prompt';
+    document.getElementById('cancelPromptBtn').style.display = 'none';
+    showMessage('promptMessage', 'Edit cancelled.', 'success');
+}
+
+function cancelSkillEdit() {
+    editingSkillId = null;
+    document.getElementById('skillForm').reset();
+    document.querySelector('#skillForm button[type="submit"]').textContent = 'Add Skill';
+    document.getElementById('cancelSkillBtn').style.display = 'none';
+    showMessage('skillMessage', 'Edit cancelled.', 'success');
 }
 
 // ===================================
@@ -871,10 +1128,18 @@ function showMessage(elementId, text, type) {
     }, 5000);
 }
 
-// Make delete functions global
+// Make functions global
 window.deleteProject = deleteProject;
+window.editProject = editProject;
 window.deletePrompt = deletePrompt;
+window.editPrompt = editPrompt;
 window.deleteSkill = deleteSkill;
+window.editSkill = editSkill;
+window.removeProjectImage = removeProjectImage;
+window.removePromptImage = removePromptImage;
+window.cancelProjectEdit = cancelProjectEdit;
+window.cancelPromptEdit = cancelPromptEdit;
+window.cancelSkillEdit = cancelSkillEdit;
 window.resetAppearance = resetAppearance;
 
 // Initialize on page load
