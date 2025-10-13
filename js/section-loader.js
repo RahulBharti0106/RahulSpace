@@ -1,86 +1,89 @@
 // ===================================
-// SECTION LOADER & VISIBILITY
+// OPTIMIZED SECTION LOADER
+// Lazy load sections with Intersection Observer
+// Pause animations when not visible
 // ===================================
 
-(function() {
-    'use strict';
+// Check if browser supports IntersectionObserver
+if ('IntersectionObserver' in window) {
     
-    const sections = document.querySelectorAll('.section');
+    const observerOptions = {
+        threshold: 0.15,
+        rootMargin: '0px 0px -100px 0px'
+    };
     
-    // Intersection Observer for section visibility
     const sectionObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                entry.target.classList.add('active');
+                // Section is visible - animate it
+                entry.target.classList.add('visible');
                 
-                // Trigger animations for child elements
-                const animatedElements = entry.target.querySelectorAll('[data-aos]');
-                animatedElements.forEach((element, index) => {
-                    setTimeout(() => {
-                        element.style.opacity = '1';
-                        element.style.transform = 'translateY(0) scale(1)';
-                    }, index * 100);
+                // Resume animations
+                const animations = entry.target.querySelectorAll('.project-card, .prompt-card');
+                animations.forEach(el => {
+                    el.style.animationPlayState = 'running';
+                });
+                
+                console.log(`✅ Section visible: ${entry.target.id}`);
+            } else {
+                // Section not visible - pause animations for performance
+                const animations = entry.target.querySelectorAll('.project-card, .prompt-card');
+                animations.forEach(el => {
+                    el.style.animationPlayState = 'paused';
                 });
             }
         });
-    }, {
-        root: null,
-        threshold: 0.15,
-        rootMargin: '-50px'
-    });
+    }, observerOptions);
     
     // Observe all sections
-    sections.forEach(section => {
+    document.querySelectorAll('.section').forEach(section => {
         sectionObserver.observe(section);
     });
     
-    // Preload images for better performance
-    function preloadImages() {
-        const images = document.querySelectorAll('img[data-src]');
-        
-        const imageObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const img = entry.target;
-                    img.src = img.dataset.src;
-                    img.removeAttribute('data-src');
-                    imageObserver.unobserve(img);
-                }
-            });
-        });
-        
-        images.forEach(img => imageObserver.observe(img));
+    // Make first section visible immediately
+    const firstSection = document.querySelector('.section');
+    if (firstSection) {
+        firstSection.classList.add('visible');
     }
     
-    // Initialize preloading
-    preloadImages();
+    console.log('👁️ Intersection Observer initialized - lazy loading sections');
     
-    // Performance optimization: Lazy load sections
-    const lazyLoadSections = () => {
-        sections.forEach(section => {
-            const rect = section.getBoundingClientRect();
-            const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
-            
-            if (isVisible) {
-                section.style.willChange = 'opacity, transform';
-            } else {
-                section.style.willChange = 'auto';
-            }
-        });
-    };
-    
-    // Throttle scroll events for better performance
-    let ticking = false;
-    window.addEventListener('scroll', () => {
-        if (!ticking) {
-            window.requestAnimationFrame(() => {
-                lazyLoadSections();
-                ticking = false;
-            });
-            ticking = true;
-        }
+} else {
+    // Fallback: show all sections immediately
+    console.warn('⚠️ IntersectionObserver not supported. Showing all sections.');
+    document.querySelectorAll('.section').forEach(section => {
+        section.classList.add('visible');
     });
+}
+
+// ===================================
+// LOW-END DEVICE DETECTION
+// ===================================
+
+function isLowEndDevice() {
+    const ram = navigator.deviceMemory;
+    const cores = navigator.hardwareConcurrency;
     
-    console.log('✨ Section loader initialized');
-    
-})();
+    if ((ram && ram < 4) || (cores && cores < 4)) {
+        return true;
+    }
+    return false;
+}
+
+// Remove floating orbs on low-end devices
+if (isLowEndDevice()) {
+    document.body.classList.add('low-end-device');
+    document.querySelectorAll('.floating-orbs').forEach(orb => {
+        orb.style.display = 'none';
+    });
+    console.log('⚡ Low-end device detected - optimizations applied');
+}
+
+// ===================================
+// REDUCE MOTION SUPPORT
+// ===================================
+
+if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.body.classList.add('reduce-motion');
+    console.log('♿ Reduced motion preference detected');
+}
