@@ -1,85 +1,242 @@
 // ===================================
-// MAIN PORTFOLIO JAVASCRIPT - OPTIMIZED
+// MAIN JAVASCRIPT FILE
 // ===================================
 
-// ===================================
-// SMOOTH NAVBAR BEHAVIOR
-// ===================================
-
-const navbar = document.querySelector('.navbar');
-let lastScrollY = window.scrollY;
-
-window.addEventListener('scroll', () => {
-    if (window.scrollY > 50) {
-        navbar.classList.add('scrolled');
-    } else {
-        navbar.classList.remove('scrolled');
-    }
-    lastScrollY = window.scrollY;
-}, { passive: true });
+// Wait for DOM to be fully loaded
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // Initialize all components
+    initializeLoading();
+    initializeNavigation();
+    initializeSmoothScroll();
+    initializeContactForm();
+    initializeMobileMenu();
+    initializeAOS(); // Animation on scroll
+    
+    console.log('🚀 RahulSpace initialized successfully!');
+});
 
 // ===================================
-// MOBILE MENU TOGGLE
+// LOADING SCREEN
 // ===================================
 
-const menuToggle = document.querySelector('.menu-toggle');
-const navMenu = document.querySelector('.nav-menu');
-
-if (menuToggle) {
-    menuToggle.addEventListener('click', () => {
-        menuToggle.classList.toggle('active');
-        navMenu.classList.toggle('active');
+function initializeLoading() {
+    const loadingScreen = document.getElementById('loading-screen');
+    
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            loadingScreen.classList.add('hidden');
+        }, 1000);
     });
+}
 
-    // Close menu when clicking on a link
-    document.querySelectorAll('.nav-link').forEach(link => {
-        link.addEventListener('click', () => {
-            menuToggle.classList.remove('active');
-            navMenu.classList.remove('active');
+// ===================================
+// NAVIGATION
+// ===================================
+
+function initializeNavigation() {
+    const navbar = document.getElementById('navbar');
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('.section');
+    
+    // Navbar scroll effect
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
+        
+        // Update active nav link based on scroll position
+        updateActiveNavLink();
+    });
+    
+    // Update active navigation link
+    function updateActiveNavLink() {
+        let currentSection = '';
+        
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            const sectionHeight = section.clientHeight;
+            if (window.scrollY >= (sectionTop - 200)) {
+                currentSection = section.getAttribute('id');
+            }
+        });
+        
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('data-section') === currentSection) {
+                link.classList.add('active');
+            }
+        });
+    }
+}
+
+// ===================================
+// SMOOTH SCROLLING
+// ===================================
+
+function initializeSmoothScroll() {
+    const navLinks = document.querySelectorAll('a[href^="#"]');
+    
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            const targetId = link.getAttribute('href');
+            if (targetId === '#') return;
+            
+            const targetSection = document.querySelector(targetId);
+            if (targetSection) {
+                // Close mobile menu if open
+                const navMenu = document.getElementById('navMenu');
+                navMenu.classList.remove('active');
+                
+                // Smooth scroll to target
+                targetSection.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
         });
     });
+}
 
+// ===================================
+// MOBILE MENU
+// ===================================
+
+function initializeMobileMenu() {
+    const mobileToggle = document.getElementById('mobileToggle');
+    const navMenu = document.getElementById('navMenu');
+    
+    if (mobileToggle) {
+        mobileToggle.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+            mobileToggle.classList.toggle('active');
+        });
+    }
+    
     // Close menu when clicking outside
     document.addEventListener('click', (e) => {
-        if (!menuToggle.contains(e.target) && !navMenu.contains(e.target)) {
-            menuToggle.classList.remove('active');
+        if (!e.target.closest('.nav-container')) {
             navMenu.classList.remove('active');
+            mobileToggle.classList.remove('active');
         }
     });
 }
 
 // ===================================
-// SMOOTH SCROLL TO SECTIONS
+// CONTACT FORM WITH SUPABASE
 // ===================================
 
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        const href = this.getAttribute('href');
-        
-        if (href === '#') return;
-        
-        e.preventDefault();
-        
-        const target = document.querySelector(href);
-        if (target) {
-            const navHeight = navbar ? navbar.offsetHeight : 60;
-            const targetPosition = target.offsetTop - navHeight - 20;
+function initializeContactForm() {
+    const contactForm = document.getElementById('contactForm');
+    const formStatus = document.getElementById('form-status');
+    
+    if (contactForm) {
+        contactForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
             
-            window.scrollTo({
-                top: targetPosition,
-                behavior: 'smooth'
-            });
-        }
+            // Get form data
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                subject: document.getElementById('subject').value,
+                message: document.getElementById('message').value
+            };
+            
+            // Show loading state
+            const submitBtn = contactForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Sending...';
+            submitBtn.disabled = true;
+            
+            try {
+                // Save to Supabase
+                const { data, error } = await supabaseClient
+                    .from('contacts')
+                    .insert([formData]);
+                
+                if (error) {
+                    throw error;
+                }
+                
+                // Success message
+                formStatus.textContent = '✅ Message sent successfully! I\'ll get back to you soon.';
+                formStatus.className = 'form-status success';
+                
+                // Reset form
+                contactForm.reset();
+                
+                console.log('✅ Message saved to Supabase:', data);
+                
+                // Hide status after 5 seconds
+                setTimeout(() => {
+                    formStatus.style.display = 'none';
+                    formStatus.className = 'form-status';
+                }, 5000);
+                
+            } catch (error) {
+                // Error message
+                console.error('❌ Error saving to Supabase:', error);
+                formStatus.textContent = '❌ Failed to send message. Please try again or email me directly.';
+                formStatus.className = 'form-status error';
+                
+                // Hide error after 5 seconds
+                setTimeout(() => {
+                    formStatus.style.display = 'none';
+                    formStatus.className = 'form-status';
+                }, 5000);
+            } finally {
+                // Reset button
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+    }
+}
+
+
+// ===================================
+// ANIMATION ON SCROLL (AOS)
+// ===================================
+
+function initializeAOS() {
+    const observerOptions = {
+        root: null,
+        threshold: 0.1,
+        rootMargin: '0px 0px -100px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+    
+    // Observe all sections
+    const sections = document.querySelectorAll('.section');
+    sections.forEach(section => {
+        observer.observe(section);
     });
-});
+    
+    // Observe cards with data-aos attribute
+    const aosElements = document.querySelectorAll('[data-aos]');
+    aosElements.forEach(element => {
+        element.style.opacity = '0';
+        observer.observe(element);
+    });
+}
 
 // ===================================
-// ACTIVE NAV LINK HIGHLIGHTING
+// UTILITY FUNCTIONS
 // ===================================
 
-const sections = document.querySelectorAll('.section');
-const navLinks = document.querySelectorAll('.nav-link');
-
+// Debounce function for performance
 function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
@@ -92,134 +249,14 @@ function debounce(func, wait) {
     };
 }
 
-const highlightNav = debounce(() => {
-    let current = '';
-    
-    sections.forEach(section => {
-        const sectionTop = section.offsetTop;
-        const sectionHeight = section.clientHeight;
-        
-        if (window.scrollY >= (sectionTop - (navbar ? navbar.offsetHeight : 60) - 100)) {
-            current = section.getAttribute('id');
+// Throttle function for scroll events
+function throttle(func, limit) {
+    let inThrottle;
+    return function(...args) {
+        if (!inThrottle) {
+            func.apply(this, args);
+            inThrottle = true;
+            setTimeout(() => inThrottle = false, limit);
         }
-    });
-    
-    navLinks.forEach(link => {
-        link.classList.remove('active');
-        if (link.getAttribute('href') === `#${current}`) {
-            link.classList.add('active');
-        }
-    });
-}, 50);
-
-window.addEventListener('scroll', highlightNav, { passive: true });
-
-// ===================================
-// CONTACT FORM HANDLING
-// ===================================
-
-const contactForm = document.getElementById('contactForm');
-
-if (contactForm) {
-    contactForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const submitBtn = contactForm.querySelector('button[type="submit"]');
-        const originalText = submitBtn.textContent;
-        
-        const formData = {
-            name: document.getElementById('name').value.trim(),
-            email: document.getElementById('email').value.trim(),
-            subject: document.getElementById('subject').value.trim(),
-            message: document.getElementById('message').value.trim()
-        };
-        
-        if (!formData.name || !formData.email || !formData.message) {
-            alert('❌ Please fill in all required fields!');
-            return;
-        }
-        
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(formData.email)) {
-            alert('❌ Please enter a valid email address!');
-            return;
-        }
-        
-        submitBtn.textContent = 'Sending...';
-        submitBtn.disabled = true;
-        
-        try {
-            const { error } = await supabaseClient
-                .from('contacts')
-                .insert([formData]);
-            
-            if (error) throw error;
-            
-            alert('✅ Message sent successfully! I\'ll get back to you soon.');
-            contactForm.reset();
-            
-        } catch (error) {
-            console.error('Error sending message:', error);
-            alert('❌ Failed to send message. Please try again or email me directly.');
-        } finally {
-            submitBtn.textContent = originalText;
-            submitBtn.disabled = false;
-        }
-    });
+    };
 }
-
-// ===================================
-// KEYBOARD NAVIGATION SUPPORT
-// ===================================
-
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && navMenu && navMenu.classList.contains('active')) {
-        if (menuToggle) menuToggle.classList.remove('active');
-        navMenu.classList.remove('active');
-    }
-});
-
-// ===================================
-// PREVENT ZOOM ON DOUBLE TAP (MOBILE)
-// ===================================
-
-let lastTouchEnd = 0;
-document.addEventListener('touchend', (e) => {
-    const now = Date.now();
-    if (now - lastTouchEnd <= 300) {
-        e.preventDefault();
-    }
-    lastTouchEnd = now;
-}, { passive: false });
-
-// ===================================
-// PERFORMANCE MONITORING
-// ===================================
-
-window.addEventListener('load', () => {
-    if (window.performance) {
-        const perfData = window.performance.timing;
-        const pageLoadTime = perfData.loadEventEnd - perfData.navigationStart;
-        
-        console.log('%c🚀 Performance Report', 'color: #6366f1; font-size: 16px; font-weight: bold;');
-        console.log(`⏱️ Page Load Time: ${pageLoadTime}ms`);
-        
-        if (pageLoadTime < 2000) {
-            console.log('%c✅ Excellent Performance!', 'color: #10b981; font-weight: bold;');
-        } else if (pageLoadTime < 3000) {
-            console.log('%c⚠️ Good Performance', 'color: #f59e0b; font-weight: bold;');
-        } else {
-            console.log('%c❌ Needs Optimization', 'color: #ef4444; font-weight: bold;');
-        }
-    }
-});
-
-// ===================================
-// INITIALIZE ON DOM READY
-// ===================================
-
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('✅ Portfolio initialized successfully!');
-});
-
-console.log('%c✨ Main script loaded!', 'color: #10b981; font-weight: bold;');
