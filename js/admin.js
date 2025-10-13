@@ -1067,9 +1067,11 @@ function viewMessage(msgData) {
     document.getElementById('modalSubject').textContent = msgData.subject;
     document.getElementById('modalMessage').textContent = msgData.message;
     
-    // Set reply button
-    const replyBtn = document.getElementById('modalReplyBtn');
-    replyBtn.href = `mailto:${msgData.email}?subject=Re: ${encodeURIComponent(msgData.subject)}`;
+    // Create Gmail URL
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${msgData.email}&su=${encodeURIComponent('Re: ' + msgData.subject)}&body=${encodeURIComponent('Hi ' + msgData.name + ',\n\n\n\n---\nOriginal Message:\n' + msgData.message)}`;
+    
+    // Set the Gmail link
+    document.getElementById('gmailReplyLink').href = gmailUrl;
     
     // Show modal
     const modal = document.getElementById('messageModal');
