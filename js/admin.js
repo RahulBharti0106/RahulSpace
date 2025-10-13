@@ -1007,7 +1007,7 @@ async function loadMessages() {
         
         if (error) throw error;
         
-        let html = '<table><thead><tr><th>Date</th><th>Name</th><th>Email</th><th>Subject</th><th>Message Preview</th><th>Action</th></tr></thead><tbody>';
+        let html = '<table><thead><tr><th>Date</th><th>Name</th><th>Email</th><th>Subject</th><th>Message Preview</th><th>Actions</th></tr></thead><tbody>';
         
         if (data.length === 0) {
             html += '<tr><td colspan="6" style="text-align: center; padding: 2rem; color: #666;">No messages yet.</td></tr>';
@@ -1025,6 +1025,7 @@ async function loadMessages() {
             
             // Store message data in escaped JSON
             const msgData = JSON.stringify({
+                id: msg.id,
                 date: date,
                 name: msg.name,
                 email: msg.email,
@@ -1039,8 +1040,9 @@ async function loadMessages() {
                     <td>${msg.email}</td>
                     <td>${msg.subject}</td>
                     <td>${messagePreview}</td>
-                    <td>
-                        <button class="btn btn-primary btn-sm" onclick='viewMessage(${msgData})'>View Full</button>
+                    <td class="action-btns">
+                        <button class="btn btn-primary btn-sm" onclick='viewMessage(${msgData})'>View</button>
+                        <button class="btn btn-danger btn-sm" onclick='deleteMessage("${msg.id}", "${msg.name}")'>Delete</button>
                     </td>
                 </tr>
             `;
@@ -1072,6 +1074,38 @@ function viewMessage(msgData) {
     // Show modal
     const modal = document.getElementById('messageModal');
     modal.style.display = 'flex';
+}
+
+// Delete Message
+async function deleteMessage(messageId, senderName) {
+    if (!confirm(`Are you sure you want to delete the message from ${senderName}?`)) return;
+    
+    try {
+        const { error } = await supabase
+            .from('contacts')
+            .delete()
+            .eq('id', messageId);
+        
+        if (error) throw error;
+        
+        alert('✅ Message deleted successfully!');
+        loadMessages(); // Reload messages
+        loadDashboard(); // Update count
+        
+    } catch (error) {
+        console.error('Error deleting message:', error);
+        alert('❌ Failed to delete message. Please try again.');
+    }
+}
+
+// Copy email to clipboard
+function copyEmailToClipboard() {
+    const email = document.getElementById('modalEmail').textContent;
+    navigator.clipboard.writeText(email).then(() => {
+        alert('✅ Email copied to clipboard: ' + email);
+    }).catch(() => {
+        alert('❌ Failed to copy. Email: ' + email);
+    });
 }
 
 // Close Modal
