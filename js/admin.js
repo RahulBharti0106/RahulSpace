@@ -1087,7 +1087,6 @@ document.addEventListener('click', (e) => {
     }
 });
 
-}
 
 // ===================================
 // IMAGE UPLOAD
