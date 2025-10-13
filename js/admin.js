@@ -1223,6 +1223,61 @@ function copyEmailToClipboard() {
     });
 }
 
+// Open Gmail compose with pre-filled data
+function openGmailReply() {
+    const email = document.getElementById('modalEmail').textContent;
+    const subject = document.getElementById('modalSubject').textContent;
+    const name = document.getElementById('modalName').textContent;
+    const originalMessage = document.getElementById('modalMessage').textContent;
+    
+    const body = encodeURIComponent(`Hi ${name},\n\n\n\n---\nOriginal Message:\n${originalMessage}`);
+    const encodedSubject = encodeURIComponent(`Re: ${subject}`);
+    
+    // Open Gmail web interface
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${encodedSubject}&body=${body}`;
+    window.open(gmailUrl, '_blank');
+}
+
+// Copy email to clipboard
+function copyEmailToClipboard() {
+    const email = document.getElementById('modalEmail').textContent;
+    navigator.clipboard.writeText(email).then(() => {
+        alert('✅ Email copied: ' + email);
+    }).catch(() => {
+        // Fallback for older browsers
+        const textarea = document.createElement('textarea');
+        textarea.value = email;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        alert('✅ Email copied: ' + email);
+    });
+}
+
+// Copy all message details
+function copyMessageDetails() {
+    const date = document.getElementById('modalDate').textContent;
+    const name = document.getElementById('modalName').textContent;
+    const email = document.getElementById('modalEmail').textContent;
+    const subject = document.getElementById('modalSubject').textContent;
+    const message = document.getElementById('modalMessage').textContent;
+    
+    const fullDetails = `Date: ${date}\nFrom: ${name}\nEmail: ${email}\nSubject: ${subject}\n\nMessage:\n${message}`;
+    
+    navigator.clipboard.writeText(fullDetails).then(() => {
+        alert('✅ All message details copied to clipboard!');
+    }).catch(() => {
+        const textarea = document.createElement('textarea');
+        textarea.value = fullDetails;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        alert('✅ All message details copied!');
+    });
+}
+
 // Make functions global
 window.deleteProject = deleteProject;
 window.editProject = editProject;
@@ -1241,6 +1296,9 @@ window.closeMessageModal = closeMessageModal;
 window.copyEmailToClipboard = copyEmailToClipboard;
 window.deleteMessage = deleteMessage;              
 window.copyEmailToClipboard = copyEmailToClipboard; 
+window.openGmailReply = openGmailReply;           
+window.copyEmailToClipboard = copyEmailToClipboard; 
+window.copyMessageDetails = copyMessageDetails;      
 
 // Initialize on page load
 checkAuth();
