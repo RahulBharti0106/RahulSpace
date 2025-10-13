@@ -1,167 +1,209 @@
 // ===================================
-// CUTE CAT ANIMATION - With Eyes & Legs
+// OPTIMIZED CAT ANIMATION
+// Hides when typing, touch-friendly
 // ===================================
 
-(function() {
-    'use strict';
+const floatingCat = document.getElementById('floating-cat');
+
+if (floatingCat) {
+    let catX = window.innerWidth / 2;
+    let catY = window.innerHeight / 2;
+    let targetX = catX;
+    let targetY = catY;
+    let isTyping = false;
+    let isHidden = false;
+    let typingTimeout;
+    let lastUpdateTime = 0;
+    const isMobile = window.innerWidth <= 768;
+    const updateInterval = isMobile ? 50 : 33;
     
-    const catToggle = document.getElementById('cat-toggle');
+    // Initialize position
+    floatingCat.style.left = catX + 'px';
+    floatingCat.style.top = catY + 'px';
     
-    let mouseX = 0;
-    let mouseY = 0;
-    let catX = 0;
-    let catY = 0;
-    let isEnabled = localStorage.getItem('catAnimation') !== 'false';
+    console.log('🐱 Cat initialized');
     
-    // Create the cat element
-    const floatingCat = document.createElement('div');
-    floatingCat.id = 'floating-cat';
-    floatingCat.innerHTML = `
-        <div class="cat-container">
-            <div class="cat-ears">
-                <div class="cat-ear cat-ear-left"></div>
-                <div class="cat-ear cat-ear-right"></div>
-            </div>
-            <div class="cat-face">
-                <div class="cat-eyes">
-                    <div class="cat-eye cat-eye-left">
-                        <div class="cat-pupil"></div>
-                    </div>
-                    <div class="cat-eye cat-eye-right">
-                        <div class="cat-pupil"></div>
-                    </div>
-                </div>
-                <div class="cat-nose"></div>
-                <div class="cat-mouth">
-                    <div class="cat-mouth-left"></div>
-                    <div class="cat-mouth-right"></div>
-                </div>
-                <div class="cat-whiskers cat-whiskers-left">
-                    <div class="whisker"></div>
-                    <div class="whisker"></div>
-                    <div class="whisker"></div>
-                </div>
-                <div class="cat-whiskers cat-whiskers-right">
-                    <div class="whisker"></div>
-                    <div class="whisker"></div>
-                    <div class="whisker"></div>
-                </div>
-            </div>
-            <div class="cat-body">
-                <div class="cat-legs">
-                    <div class="cat-leg cat-leg-left"></div>
-                    <div class="cat-leg cat-leg-right"></div>
-                </div>
-                <div class="cat-tail"></div>
-            </div>
-        </div>
-    `;
+    // ===================================
+    // DETECT TYPING IN ANY INPUT/TEXTAREA
+    // ===================================
     
-    document.body.appendChild(floatingCat);
-    
-    // Apply saved preference
-    if (!isEnabled) {
-        floatingCat.style.display = 'none';
-        catToggle.style.opacity = '0.5';
+    function hideWhileTyping() {
+        isTyping = true;
+        floatingCat.classList.add('typing');
+        console.log('🐱 Cat hiding - user is typing');
+        
+        clearTimeout(typingTimeout);
+        
+        // Keep cat hidden while typing
+        typingTimeout = setTimeout(() => {
+            // Only show if no input is focused
+            if (document.activeElement.tagName !== 'INPUT' && 
+                document.activeElement.tagName !== 'TEXTAREA') {
+                isTyping = false;
+                floatingCat.classList.remove('typing');
+                console.log('🐱 Cat showing - typing stopped');
+            }
+        }, 1500);
     }
     
-    // Cat toggle button
-    if (catToggle) {
-        catToggle.addEventListener('click', () => {
-            isEnabled = !isEnabled;
-            
-            localStorage.setItem('catAnimation', isEnabled);
-            
-            if (isEnabled) {
-                floatingCat.style.display = 'block';
-                catToggle.style.opacity = '1';
-                console.log('🐱 Cat is now following you!');
-            } else {
-                floatingCat.style.display = 'none';
-                catToggle.style.opacity = '0.5';
-                console.log('🐱 Cat is resting...');
+    function showCat() {
+        isTyping = false;
+        floatingCat.classList.remove('typing');
+        console.log('🐱 Cat showing - input blurred');
+    }
+    
+    // Listen to ALL inputs and textareas
+    const allInputs = document.querySelectorAll('input, textarea');
+    
+    allInputs.forEach(input => {
+        // When user clicks into input
+        input.addEventListener('focus', () => {
+            hideWhileTyping();
+        });
+        
+        // When user clicks away from input
+        input.addEventListener('blur', () => {
+            showCat();
+        });
+        
+        // When user types anything
+        input.addEventListener('input', () => {
+            hideWhileTyping();
+        });
+        
+        // When user presses any key
+        input.addEventListener('keydown', () => {
+            hideWhileTyping();
+        });
+    });
+    
+    // Also detect when clicking into contact form area
+    const contactForm = document.getElementById('contactForm');
+    if (contactForm) {
+        contactForm.addEventListener('click', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                hideWhileTyping();
             }
-            
-            catToggle.style.transform = 'scale(0.9)';
-            setTimeout(() => {
-                catToggle.style.transform = 'scale(1)';
-            }, 150);
         });
     }
     
-    // Track mouse movement
-    document.addEventListener('mousemove', (e) => {
-        if (!isEnabled) return;
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-    });
+    // ===================================
+    // CAT ANIMATION LOOP
+    // ===================================
     
-    // Touch support for mobile
-    document.addEventListener('touchmove', (e) => {
-        if (!isEnabled) return;
-        const touch = e.touches[0];
-        mouseX = touch.clientX;
-        mouseY = touch.clientY;
-    });
-    
-    // Animate cat position
-    function animateCat() {
-        if (!isEnabled) {
-            requestAnimationFrame(animateCat);
+    function updateCatPosition(currentTime) {
+        if (currentTime - lastUpdateTime < updateInterval) {
+            requestAnimationFrame(updateCatPosition);
             return;
         }
+        lastUpdateTime = currentTime;
         
-        // Smooth following with easing
-        const speed = 0.08;
-        const dx = mouseX - catX;
-        const dy = mouseY - catY;
+        if (!isTyping && !isHidden) {
+            const easing = isMobile ? 0.08 : 0.1;
+            catX += (targetX - catX) * easing;
+            catY += (targetY - catY) * easing;
+            
+            floatingCat.style.left = catX + 'px';
+            floatingCat.style.top = catY + 'px';
+        }
         
-        catX += dx * speed;
-        catY += dy * speed;
-        
-        // Apply position
-        floatingCat.style.left = catX + 'px';
-        floatingCat.style.top = catY + 'px';
-        
-        // Rotate cat based on movement direction
-        const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-        floatingCat.style.transform = `translate(-50%, -50%) rotate(${angle + 90}deg)`;
-        
-        // Animate eyes to look at cursor
-        const eyes = floatingCat.querySelectorAll('.cat-pupil');
-        eyes.forEach(eye => {
-            const eyeX = parseFloat(getComputedStyle(eye.parentElement).left);
-            const eyeY = parseFloat(getComputedStyle(eye.parentElement).top);
-            const deltaX = dx * 0.3;
-            const deltaY = dy * 0.3;
-            eye.style.transform = `translate(${deltaX * 0.1}px, ${deltaY * 0.1}px)`;
-        });
-        
-        requestAnimationFrame(animateCat);
+        requestAnimationFrame(updateCatPosition);
     }
     
-    // Start animation loop
-    animateCat();
+    // ===================================
+    // MOUSE/TOUCH TRACKING
+    // ===================================
     
-    // Animate legs walking
-    let legStep = 0;
-    setInterval(() => {
-        if (!isEnabled) return;
+    if (isMobile) {
+        // MOBILE: Touch events
+        let touchTimeout;
+        let idleTimeout;
         
-        const speed = Math.sqrt(Math.pow(mouseX - catX, 2) + Math.pow(mouseY - catY, 2));
-        
-        if (speed > 2) {
-            legStep += 0.5;
-            const leftLeg = floatingCat.querySelector('.cat-leg-left');
-            const rightLeg = floatingCat.querySelector('.cat-leg-right');
-            
-            if (leftLeg && rightLeg) {
-                leftLeg.style.transform = `rotate(${Math.sin(legStep) * 15}deg)`;
-                rightLeg.style.transform = `rotate(${Math.sin(legStep + Math.PI) * 15}deg)`;
+        document.addEventListener('touchmove', (e) => {
+            if (!isTyping && !touchTimeout) {
+                const touch = e.touches[0];
+                targetX = touch.clientX - 40;
+                targetY = touch.clientY - 50;
+                
+                touchTimeout = setTimeout(() => {
+                    touchTimeout = null;
+                }, 50);
             }
+        }, { passive: true });
+        
+        document.addEventListener('touchstart', (e) => {
+            if (!isTyping) {
+                const touch = e.touches[0];
+                targetX = touch.clientX - 40;
+                targetY = touch.clientY - 50;
+            }
+        }, { passive: true });
+        
+        // Move to corner after no touch
+        document.addEventListener('touchend', () => {
+            clearTimeout(idleTimeout);
+            idleTimeout = setTimeout(() => {
+                if (!isTyping) {
+                    targetX = window.innerWidth - 70;
+                    targetY = window.innerHeight - 150;
+                }
+            }, 3000);
+        });
+        
+        console.log('🐱 Cat: Mobile touch mode activated');
+        
+    } else {
+        // DESKTOP: Mouse events
+        let mouseMoveTimeout;
+        
+        document.addEventListener('mousemove', (e) => {
+            if (!isTyping && !mouseMoveTimeout) {
+                targetX = e.clientX - 40;
+                targetY = e.clientY - 50;
+                
+                mouseMoveTimeout = setTimeout(() => {
+                    mouseMoveTimeout = null;
+                }, 16);
+            }
+        });
+        
+        console.log('🐱 Cat: Desktop mouse mode activated');
+    }
+    
+    // ===================================
+    // HIDE CAT ON BUTTON/LINK CLICKS
+    // ===================================
+    
+    document.addEventListener('click', (e) => {
+        if (e.target.tagName === 'BUTTON' || 
+            e.target.tagName === 'A' ||
+            e.target.classList.contains('btn')) {
+            
+            isHidden = true;
+            floatingCat.classList.add('hidden');
+            
+            setTimeout(() => {
+                isHidden = false;
+                floatingCat.classList.remove('hidden');
+            }, 1000);
         }
-    }, 50);
+    });
     
-    console.log('🐱 Cute cat is ready!');
+    // ===================================
+    // START ANIMATION
+    // ===================================
     
-})();
+    requestAnimationFrame(updateCatPosition);
+    
+    // Reposition on window resize
+    window.addEventListener('resize', () => {
+        if (!isTyping) {
+            catX = window.innerWidth / 2;
+            catY = window.innerHeight / 2;
+            targetX = catX;
+            targetY = catY;
+        }
+    });
+    
+    console.log('✅ Cat animation fully initialized');
+}
