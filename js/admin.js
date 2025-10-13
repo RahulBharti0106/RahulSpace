@@ -1007,21 +1007,41 @@ async function loadMessages() {
         
         if (error) throw error;
         
-        let html = '<table><thead><tr><th>Date</th><th>Name</th><th>Email</th><th>Subject</th><th>Message</th></tr></thead><tbody>';
+        let html = '<table><thead><tr><th>Date</th><th>Name</th><th>Email</th><th>Subject</th><th>Message Preview</th><th>Action</th></tr></thead><tbody>';
         
         if (data.length === 0) {
-            html += '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: #666;">No messages yet.</td></tr>';
+            html += '<tr><td colspan="6" style="text-align: center; padding: 2rem; color: #666;">No messages yet.</td></tr>';
         }
         
         data.forEach(msg => {
-            const date = new Date(msg.created_at).toLocaleDateString();
+            const date = new Date(msg.created_at).toLocaleDateString('en-IN', { 
+                day: 'numeric', 
+                month: 'short', 
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            const messagePreview = msg.message.substring(0, 50) + (msg.message.length > 50 ? '...' : '');
+            
+            // Store message data in escaped JSON
+            const msgData = JSON.stringify({
+                date: date,
+                name: msg.name,
+                email: msg.email,
+                subject: msg.subject,
+                message: msg.message
+            }).replace(/"/g, '&quot;');
+            
             html += `
                 <tr>
                     <td>${date}</td>
                     <td><strong>${msg.name}</strong></td>
                     <td>${msg.email}</td>
                     <td>${msg.subject}</td>
-                    <td>${msg.message.substring(0, 100)}${msg.message.length > 100 ? '...' : ''}</td>
+                    <td>${messagePreview}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" onclick='viewMessage(${msgData})'>View Full</button>
+                    </td>
                 </tr>
             `;
         });
@@ -1035,6 +1055,38 @@ async function loadMessages() {
     } catch (error) {
         console.error('Error loading messages:', error);
     }
+}
+
+// View Full Message in Modal
+function viewMessage(msgData) {
+    document.getElementById('modalDate').textContent = msgData.date;
+    document.getElementById('modalName').textContent = msgData.name;
+    document.getElementById('modalEmail').textContent = msgData.email;
+    document.getElementById('modalSubject').textContent = msgData.subject;
+    document.getElementById('modalMessage').textContent = msgData.message;
+    
+    // Set reply button
+    const replyBtn = document.getElementById('modalReplyBtn');
+    replyBtn.href = `mailto:${msgData.email}?subject=Re: ${encodeURIComponent(msgData.subject)}`;
+    
+    // Show modal
+    const modal = document.getElementById('messageModal');
+    modal.style.display = 'flex';
+}
+
+// Close Modal
+function closeMessageModal() {
+    document.getElementById('messageModal').style.display = 'none';
+}
+
+// Close modal when clicking outside
+document.addEventListener('click', (e) => {
+    const modal = document.getElementById('messageModal');
+    if (e.target === modal) {
+        closeMessageModal();
+    }
+});
+
 }
 
 // ===================================
@@ -1141,6 +1193,8 @@ window.cancelProjectEdit = cancelProjectEdit;
 window.cancelPromptEdit = cancelPromptEdit;
 window.cancelSkillEdit = cancelSkillEdit;
 window.resetAppearance = resetAppearance;
+window.viewMessage = viewMessage;           
+window.closeMessageModal = closeMessageModal; 
 
 // Initialize on page load
 checkAuth();
