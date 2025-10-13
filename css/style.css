@@ -103,7 +103,6 @@ img {
 /* ===================================
    NAVIGATION
    =================================== */
-
 .navbar {
     position: fixed;
     top: 0;
@@ -117,18 +116,15 @@ img {
     transition: all 0.3s ease;
 }
 
-.navbar.scrolled {
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-}
-
 .nav-container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 1rem 2rem;
+    padding: 0.75rem 2rem; /* Reduced from 1rem - thinner navbar */
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
+
 
 .nav-logo {
     display: flex;
@@ -365,6 +361,13 @@ img {
     filter: blur(40px);
     opacity: 0.6;
     animation: float 6s ease-in-out infinite;
+}
+
+/* Remove floating orbs on mobile for performance */
+@media (max-width: 768px) {
+    .floating-orb {
+        display: none;
+    }
 }
 
 .orb-1 {
@@ -968,6 +971,29 @@ img {
     pointer-events: none;
     z-index: 9999;
     transition: none;
+    will-change: transform; /* GPU acceleration */
+}
+
+/* Cat states for smart behavior */
+#floating-cat.typing {
+    bottom: 20px !important;
+    right: 20px !important;
+    transform: scale(0.6);
+    opacity: 0.4;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#floating-cat.hidden {
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.3s ease;
+}
+
+/* Smaller cat on mobile */
+@media (max-width: 768px) {
+    .cat-container {
+        transform: scale(0.7);
+    }
 }
 
 .cat-container {
@@ -1269,4 +1295,56 @@ body.dark-mode .cat-tail {
     background: linear-gradient(90deg, var(--primary), var(--secondary));
     border-radius: 10px;
     transition: width 0.6s ease;
+}
+
+/* ===================================
+   PERFORMANCE OPTIMIZATIONS
+   =================================== */
+
+/* GPU acceleration for animated elements */
+.project-card,
+.prompt-card,
+.info-card,
+#floating-cat,
+.floating-orb {
+    will-change: transform;
+}
+
+/* Reduce blur effects on mobile */
+@media (max-width: 768px) {
+    .navbar {
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+    }
+    
+    /* Lighter shadows on mobile */
+    .project-card:hover,
+    .prompt-card:hover,
+    .info-card:hover {
+        box-shadow: 0 5px 20px rgba(99, 102, 241, 0.15);
+    }
+}
+
+/* Pause animations for off-screen elements */
+.section:not(.active) .project-card,
+.section:not(.active) .prompt-card {
+    animation-play-state: paused;
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Optimize scrollbar on mobile */
+@media (max-width: 768px) {
+    ::-webkit-scrollbar {
+        width: 5px;
+    }
 }
