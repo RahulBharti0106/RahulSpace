@@ -1013,7 +1013,7 @@ async function loadMessages() {
             html += '<tr><td colspan="6" style="text-align: center; padding: 2rem; color: #666;">No messages yet.</td></tr>';
         }
         
-        data.forEach(msg => {
+        data.forEach((msg, index) => {
             const date = new Date(msg.created_at).toLocaleDateString('en-IN', { 
                 day: 'numeric', 
                 month: 'short', 
@@ -1023,15 +1023,16 @@ async function loadMessages() {
             });
             const messagePreview = msg.message.substring(0, 50) + (msg.message.length > 50 ? '...' : '');
             
-            // Store message data in escaped JSON
-            const msgData = JSON.stringify({
+            // Store message in a global array instead of inline JSON
+            if (!window.messagesData) window.messagesData = {};
+            window.messagesData[msg.id] = {
                 id: msg.id,
                 date: date,
                 name: msg.name,
                 email: msg.email,
                 subject: msg.subject,
                 message: msg.message
-            }).replace(/"/g, '&quot;');
+            };
             
             html += `
                 <tr>
@@ -1041,8 +1042,8 @@ async function loadMessages() {
                     <td>${msg.subject}</td>
                     <td>${messagePreview}</td>
                     <td class="action-btns">
-                        <button class="btn btn-primary btn-sm" onclick='viewMessage(${msgData})'>View</button>
-                        <button class="btn btn-danger btn-sm" onclick='deleteMessage("${msg.id}", "${msg.name}")'>Delete</button>
+                        <button class="btn btn-primary btn-sm" onclick="viewMessage('${msg.id}')">View</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteMessage('${msg.id}', '${msg.name.replace(/'/g, "\\'")}')">Delete</button>
                     </td>
                 </tr>
             `;
@@ -1060,7 +1061,14 @@ async function loadMessages() {
 }
 
 // View Full Message in Modal
-function viewMessage(msgData) {
+function viewMessage(messageId) {
+    const msgData = window.messagesData[messageId];
+    
+    if (!msgData) {
+        alert('Error loading message. Please refresh and try again.');
+        return;
+    }
+    
     document.getElementById('modalDate').textContent = msgData.date;
     document.getElementById('modalName').textContent = msgData.name;
     document.getElementById('modalEmail').textContent = msgData.email;
@@ -1068,7 +1076,7 @@ function viewMessage(msgData) {
     document.getElementById('modalMessage').textContent = msgData.message;
     
     // Create Gmail URL
-    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${msgData.email}&su=${encodeURIComponent('Re: ' + msgData.subject)}&body=${encodeURIComponent('Hi ' + msgData.name + ',\n\n\n\n---\nOriginal Message:\n' + msgData.message)}`;
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(msgData.email)}&su=${encodeURIComponent('Re: ' + msgData.subject)}&body=${encodeURIComponent('Hi ' + msgData.name + ',\n\n\n\n---\nOriginal Message:\n' + msgData.message)}`;
     
     // Set the Gmail link
     document.getElementById('gmailReplyLink').href = gmailUrl;
@@ -1091,8 +1099,14 @@ async function deleteMessage(messageId, senderName) {
         if (error) throw error;
         
         alert('✅ Message deleted successfully!');
-        loadMessages(); // Reload messages
-        loadDashboard(); // Update count
+        
+        // Remove from local cache
+        if (window.messagesData && window.messagesData[messageId]) {
+            delete window.messagesData[messageId];
+        }
+        
+        loadMessages();
+        loadDashboard();
         
     } catch (error) {
         console.error('Error deleting message:', error);
@@ -1103,11 +1117,33 @@ async function deleteMessage(messageId, senderName) {
 // Copy email to clipboard
 function copyEmailToClipboard() {
     const email = document.getElementById('modalEmail').textContent;
-    navigator.clipboard.writeText(email).then(() => {
-        alert('✅ Email copied to clipboard: ' + email);
-    }).catch(() => {
-        alert('❌ Failed to copy. Email: ' + email);
-    });
+    
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(email).then(() => {
+            alert('✅ Email copied: ' + email);
+        }).catch(() => {
+            fallbackCopy(email);
+        });
+    } else {
+        fallbackCopy(email);
+    }
+}
+
+// Fallback copy method for older browsers
+function fallbackCopy(text) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+        document.execCommand('copy');
+        alert('✅ Email copied: ' + text);
+    } catch (err) {
+        alert('❌ Failed to copy. Email: ' + text);
+    }
+    document.body.removeChild(textarea);
 }
 
 // Close Modal
@@ -1116,12 +1152,16 @@ function closeMessageModal() {
 }
 
 // Close modal when clicking outside
-document.addEventListener('click', (e) => {
-    const modal = document.getElementById('messageModal');
-    if (e.target === modal) {
-        closeMessageModal();
-    }
-});
+if (!window.messageModalListenerAdded) {
+    document.addEventListener('click', (e) => {
+        const modal = document.getElementById('messageModal');
+        if (e.target === modal) {
+            closeMessageModal();
+        }
+    });
+    window.messageModalListenerAdded = true;
+}
+
 
 
 // ===================================
