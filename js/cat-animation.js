@@ -1,15 +1,17 @@
 // ===================================
-// OPTIMIZED CAT ANIMATION
-// Hides when typing, touch-friendly
+// FULLY ANIMATED CAT
+// Rotates toward movement, hides when typing
 // ===================================
 
 const floatingCat = document.getElementById('floating-cat');
+const catContainer = document.querySelector('.cat-container');
 
-if (floatingCat) {
+if (floatingCat && catContainer) {
     let catX = window.innerWidth / 2;
     let catY = window.innerHeight / 2;
     let targetX = catX;
     let targetY = catY;
+    let lastX = catX;
     let isTyping = false;
     let isHidden = false;
     let typingTimeout;
@@ -18,30 +20,29 @@ if (floatingCat) {
     const updateInterval = isMobile ? 50 : 33;
     
     // Initialize position
+    floatingCat.style.position = 'fixed';
     floatingCat.style.left = catX + 'px';
     floatingCat.style.top = catY + 'px';
+    floatingCat.style.pointerEvents = 'none';
+    floatingCat.style.zIndex = '9999';
     
-    console.log('🐱 Cat initialized');
+    console.log('🐱 Animated cat initialized!');
     
     // ===================================
-    // DETECT TYPING IN ANY INPUT/TEXTAREA
+    // TYPING DETECTION
     // ===================================
     
     function hideWhileTyping() {
         isTyping = true;
         floatingCat.classList.add('typing');
-        console.log('🐱 Cat hiding - user is typing');
         
         clearTimeout(typingTimeout);
         
-        // Keep cat hidden while typing
         typingTimeout = setTimeout(() => {
-            // Only show if no input is focused
             if (document.activeElement.tagName !== 'INPUT' && 
                 document.activeElement.tagName !== 'TEXTAREA') {
                 isTyping = false;
                 floatingCat.classList.remove('typing');
-                console.log('🐱 Cat showing - typing stopped');
             }
         }, 1500);
     }
@@ -49,46 +50,19 @@ if (floatingCat) {
     function showCat() {
         isTyping = false;
         floatingCat.classList.remove('typing');
-        console.log('🐱 Cat showing - input blurred');
     }
     
-    // Listen to ALL inputs and textareas
     const allInputs = document.querySelectorAll('input, textarea');
     
     allInputs.forEach(input => {
-        // When user clicks into input
-        input.addEventListener('focus', () => {
-            hideWhileTyping();
-        });
-        
-        // When user clicks away from input
-        input.addEventListener('blur', () => {
-            showCat();
-        });
-        
-        // When user types anything
-        input.addEventListener('input', () => {
-            hideWhileTyping();
-        });
-        
-        // When user presses any key
-        input.addEventListener('keydown', () => {
-            hideWhileTyping();
-        });
+        input.addEventListener('focus', hideWhileTyping);
+        input.addEventListener('blur', showCat);
+        input.addEventListener('input', hideWhileTyping);
+        input.addEventListener('keydown', hideWhileTyping);
     });
     
-    // Also detect when clicking into contact form area
-    const contactForm = document.getElementById('contactForm');
-    if (contactForm) {
-        contactForm.addEventListener('click', (e) => {
-            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-                hideWhileTyping();
-            }
-        });
-    }
-    
     // ===================================
-    // CAT ANIMATION LOOP
+    // CAT ANIMATION WITH ROTATION
     // ===================================
     
     function updateCatPosition(currentTime) {
@@ -103,6 +77,23 @@ if (floatingCat) {
             catX += (targetX - catX) * easing;
             catY += (targetY - catY) * easing;
             
+            // Determine direction and rotate cat
+            const deltaX = catX - lastX;
+            
+            if (Math.abs(deltaX) > 0.5) { // Only rotate if significant movement
+                if (deltaX > 0) {
+                    // Moving right
+                    catContainer.classList.remove('moving-left');
+                    catContainer.classList.add('moving-right');
+                } else {
+                    // Moving left
+                    catContainer.classList.remove('moving-right');
+                    catContainer.classList.add('moving-left');
+                }
+            }
+            
+            lastX = catX;
+            
             floatingCat.style.left = catX + 'px';
             floatingCat.style.top = catY + 'px';
         }
@@ -115,7 +106,6 @@ if (floatingCat) {
     // ===================================
     
     if (isMobile) {
-        // MOBILE: Touch events
         let touchTimeout;
         let idleTimeout;
         
@@ -139,7 +129,6 @@ if (floatingCat) {
             }
         }, { passive: true });
         
-        // Move to corner after no touch
         document.addEventListener('touchend', () => {
             clearTimeout(idleTimeout);
             idleTimeout = setTimeout(() => {
@@ -150,10 +139,7 @@ if (floatingCat) {
             }, 3000);
         });
         
-        console.log('🐱 Cat: Mobile touch mode activated');
-        
     } else {
-        // DESKTOP: Mouse events
         let mouseMoveTimeout;
         
         document.addEventListener('mousemove', (e) => {
@@ -166,12 +152,10 @@ if (floatingCat) {
                 }, 16);
             }
         });
-        
-        console.log('🐱 Cat: Desktop mouse mode activated');
     }
     
     // ===================================
-    // HIDE CAT ON BUTTON/LINK CLICKS
+    // HIDE ON BUTTON CLICKS
     // ===================================
     
     document.addEventListener('click', (e) => {
@@ -195,7 +179,6 @@ if (floatingCat) {
     
     requestAnimationFrame(updateCatPosition);
     
-    // Reposition on window resize
     window.addEventListener('resize', () => {
         if (!isTyping) {
             catX = window.innerWidth / 2;
@@ -205,5 +188,8 @@ if (floatingCat) {
         }
     });
     
-    console.log('✅ Cat animation fully initialized');
+    console.log('✅ Cat fully animated and ready!');
+    
+} else {
+    console.error('❌ Cat elements not found!');
 }
