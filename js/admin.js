@@ -1179,6 +1179,16 @@ function showMessage(elementId, text, type) {
     }, 5000);
 }
 
+// Copy email to clipboard
+function copyEmailToClipboard() {
+    const email = document.getElementById('modalEmail').textContent;
+    navigator.clipboard.writeText(email).then(() => {
+        alert('✅ Email copied to clipboard: ' + email);
+    }).catch(() => {
+        alert('❌ Failed to copy. Email: ' + email);
+    });
+}
+
 // Make functions global
 window.deleteProject = deleteProject;
 window.editProject = editProject;
@@ -1194,6 +1204,9 @@ window.cancelSkillEdit = cancelSkillEdit;
 window.resetAppearance = resetAppearance;
 window.viewMessage = viewMessage;           
 window.closeMessageModal = closeMessageModal; 
+window.copyEmailToClipboard = copyEmailToClipboard;
+window.deleteMessage = deleteMessage;              
+window.copyEmailToClipboard = copyEmailToClipboard; 
 
 // Initialize on page load
 checkAuth();
