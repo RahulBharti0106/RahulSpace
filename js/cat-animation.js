@@ -13,6 +13,8 @@
     let catX = 0;
     let catY = 0;
     let isEnabled = localStorage.getItem('catAnimation') !== 'false';
+    let isTyping = false; // NEW: Track typing state
+    let typingTimeout; // NEW: Timeout for typing detection
     
     // Apply saved preference
     if (!isEnabled) {
@@ -47,6 +49,43 @@
         });
     }
     
+    // NEW: Hide cat when typing in inputs/textareas
+    const allInputs = document.querySelectorAll('input, textarea');
+    
+    allInputs.forEach(input => {
+        // When user focuses on input
+        input.addEventListener('focus', () => {
+            isTyping = true;
+            floatingCat.style.opacity = '0.2';
+            floatingCat.style.transform = 'translate(-50%, -50%) scale(0.5)';
+            console.log('🐱 Cat hidden - typing mode');
+        });
+        
+        // When user leaves input
+        input.addEventListener('blur', () => {
+            isTyping = false;
+            floatingCat.style.opacity = '1';
+            floatingCat.style.transform = 'translate(-50%, -50%) scale(1)';
+            console.log('🐱 Cat visible - typing ended');
+        });
+        
+        // Also detect typing
+        input.addEventListener('input', () => {
+            isTyping = true;
+            floatingCat.style.opacity = '0.2';
+            floatingCat.style.transform = 'translate(-50%, -50%) scale(0.5)';
+            
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                if (document.activeElement !== input) {
+                    isTyping = false;
+                    floatingCat.style.opacity = '1';
+                    floatingCat.style.transform = 'translate(-50%, -50%) scale(1)';
+                }
+            }, 1500);
+        });
+    });
+    
     // Track mouse movement
     document.addEventListener('mousemove', (e) => {
         if (!isEnabled) return;
@@ -80,10 +119,12 @@
         floatingCat.style.left = catX + 'px';
         floatingCat.style.top = catY + 'px';
         
-        // Add rotation based on movement direction
-        const deltaX = mouseX - catX;
-        const angle = Math.atan2(0, deltaX) * (180 / Math.PI);
-        floatingCat.style.transform = `translate(-50%, -50%) rotate(${angle * 0.1}deg)`;
+        // Add rotation based on movement direction (only if not typing)
+        if (!isTyping) {
+            const deltaX = mouseX - catX;
+            const angle = Math.atan2(0, deltaX) * (180 / Math.PI);
+            floatingCat.style.transform = `translate(-50%, -50%) rotate(${angle * 0.1}deg)`;
+        }
         
         requestAnimationFrame(animateCat);
     }
@@ -96,7 +137,7 @@
     const maxTrails = 10;
     
     setInterval(() => {
-        if (!isEnabled) return;
+        if (!isEnabled || isTyping) return; // NEW: No trail when typing
         
         const trail = document.createElement('div');
         trail.className = 'cat-trail-dot';
