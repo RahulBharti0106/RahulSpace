@@ -96,6 +96,47 @@
         mouseY = e.clientY;
     });
     
+    // ===================================
+    // HIDE CAT WHEN TYPING - NEW FEATURE
+    // ===================================
+    
+    let isTyping = false;
+    let typingTimeout;
+    
+    // Detect all inputs and textareas
+    const allInputs = document.querySelectorAll('input, textarea');
+    
+    allInputs.forEach(input => {
+        // When user focuses on input
+        input.addEventListener('focus', () => {
+            isTyping = true;
+            floatingCat.classList.add('typing');
+        });
+        
+        // When user leaves input
+        input.addEventListener('blur', () => {
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                isTyping = false;
+                floatingCat.classList.remove('typing');
+            }, 500);
+        });
+        
+        // When user types
+        input.addEventListener('input', () => {
+            isTyping = true;
+            floatingCat.classList.add('typing');
+            
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                if (document.activeElement !== input) {
+                    isTyping = false;
+                    floatingCat.classList.remove('typing');
+                }
+            }, 1500);
+        });
+    });
+    
     // Touch support for mobile
     document.addEventListener('touchmove', (e) => {
         if (!isEnabled) return;
