@@ -13,5 +13,3 @@ A modern, responsive portfolio website with futuristic design and playful animat
 - **Fast Loading**: Optimized performance with lazy loading
 
 
-## 📁 Project Structure
-
