@@ -11,7 +11,7 @@ A modern, responsive portfolio website with futuristic design and playful animat
 - **Smooth Animations**: Scroll-triggered animations and hover effects
 - **Modular Architecture**: Organized file structure for easy maintenance
 - **Fast Loading**: Optimized performance with lazy loading
-- **SEO Friendly**: Semantic HTML and meta tags
+
 
 ## 📁 Project Structure
 
